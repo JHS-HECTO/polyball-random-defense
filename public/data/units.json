@@ -1,0 +1,34 @@
+{
+  "units": [
+    {"id": "c_fire_imp", "name": "불꽃 임프", "grade": "common", "element": "fire", "atk": 10, "range": 120, "atkSpeed": 1.2, "projectileType": "fireball", "sprite": "units/c_fire_imp.png"},
+    {"id": "c_water_drop", "name": "물방울 정령", "grade": "common", "element": "water", "atk": 9, "range": 130, "atkSpeed": 1.1, "projectileType": "drop", "sprite": "units/c_water_drop.png"},
+    {"id": "c_wind_sprite", "name": "바람 요정", "grade": "common", "element": "wind", "atk": 8, "range": 145, "atkSpeed": 0.95, "projectileType": "gust", "sprite": "units/c_wind_sprite.png"},
+    {"id": "c_earth_golem", "name": "흙 골렘", "grade": "common", "element": "earth", "atk": 13, "range": 100, "atkSpeed": 1.5, "projectileType": "rock", "sprite": "units/c_earth_golem.png"},
+    {"id": "c_light_priest", "name": "빛의 사제", "grade": "common", "element": "light", "atk": 10, "range": 125, "atkSpeed": 1.2, "projectileType": "holy", "sprite": "units/c_light_priest.png"},
+    {"id": "c_dark_shade", "name": "어둠 그림자", "grade": "common", "element": "dark", "atk": 11, "range": 120, "atkSpeed": 1.15, "projectileType": "shadow", "sprite": "units/c_dark_shade.png"},
+
+    {"id": "r_fire_mage", "name": "화염 마법사", "grade": "rare", "element": "fire", "atk": 18, "range": 140, "atkSpeed": 1.0, "projectileType": "fireball", "sprite": "units/r_fire_mage.png"},
+    {"id": "r_water_sage", "name": "물의 현자", "grade": "rare", "element": "water", "atk": 16, "range": 150, "atkSpeed": 0.95, "projectileType": "drop", "sprite": "units/r_water_sage.png"},
+    {"id": "r_wind_archer", "name": "바람 궁수", "grade": "rare", "element": "wind", "atk": 15, "range": 170, "atkSpeed": 0.85, "projectileType": "arrow", "sprite": "units/r_wind_archer.png"},
+    {"id": "r_earth_warrior", "name": "대지 전사", "grade": "rare", "element": "earth", "atk": 22, "range": 110, "atkSpeed": 1.25, "projectileType": "rock", "sprite": "units/r_earth_warrior.png"},
+    {"id": "r_light_paladin", "name": "빛의 성기사", "grade": "rare", "element": "light", "atk": 18, "range": 140, "atkSpeed": 1.0, "projectileType": "holy", "sprite": "units/r_light_paladin.png"},
+    {"id": "r_dark_wraith", "name": "어둠 망령", "grade": "rare", "element": "dark", "atk": 19, "range": 145, "atkSpeed": 0.95, "projectileType": "shadow", "sprite": "units/r_dark_wraith.png"},
+
+    {"id": "e_fire_sorcerer", "name": "화염 소서러", "grade": "epic", "element": "fire", "atk": 32, "range": 160, "atkSpeed": 0.85, "projectileType": "fireball_aoe", "sprite": "units/e_fire_sorcerer.png"},
+    {"id": "e_water_oracle", "name": "물의 오라클", "grade": "epic", "element": "water", "atk": 30, "range": 170, "atkSpeed": 0.8, "projectileType": "drop_aoe", "sprite": "units/e_water_oracle.png"},
+    {"id": "e_wind_ranger", "name": "바람 레인저", "grade": "epic", "element": "wind", "atk": 28, "range": 190, "atkSpeed": 0.75, "projectileType": "arrow_pierce", "sprite": "units/e_wind_ranger.png"},
+    {"id": "e_earth_titan", "name": "대지 타이탄", "grade": "epic", "element": "earth", "atk": 42, "range": 130, "atkSpeed": 1.1, "projectileType": "rock_aoe", "sprite": "units/e_earth_titan.png"},
+    {"id": "e_light_seraph", "name": "빛의 세라프", "grade": "epic", "element": "light", "atk": 32, "range": 160, "atkSpeed": 0.85, "projectileType": "holy_aoe", "sprite": "units/e_light_seraph.png"},
+    {"id": "e_dark_lich", "name": "어둠 리치", "grade": "epic", "element": "dark", "atk": 34, "range": 160, "atkSpeed": 0.85, "projectileType": "shadow_aoe", "sprite": "units/e_dark_lich.png"},
+
+    {"id": "l_phoenix", "name": "불사조", "grade": "legendary", "element": "fire", "atk": 58, "range": 180, "atkSpeed": 0.72, "projectileType": "fireball_aoe", "sprite": "units/l_phoenix.png", "skill": "rebirth"},
+    {"id": "l_leviathan", "name": "리바이어던", "grade": "legendary", "element": "water", "atk": 56, "range": 180, "atkSpeed": 0.72, "projectileType": "drop_aoe", "sprite": "units/l_leviathan.png", "skill": "tide_wave"},
+    {"id": "l_storm_lord", "name": "폭풍군주", "grade": "legendary", "element": "wind", "atk": 54, "range": 200, "atkSpeed": 0.68, "projectileType": "lightning", "sprite": "units/l_storm_lord.png", "skill": "chain_strike"},
+    {"id": "l_earthshaker", "name": "어스셰이커", "grade": "legendary", "element": "earth", "atk": 72, "range": 150, "atkSpeed": 0.85, "projectileType": "rock_aoe", "sprite": "units/l_earthshaker.png", "skill": "earthquake"},
+    {"id": "l_archangel", "name": "대천사", "grade": "legendary", "element": "light", "atk": 58, "range": 180, "atkSpeed": 0.72, "projectileType": "holy_aoe", "sprite": "units/l_archangel.png", "skill": "judgment"},
+    {"id": "l_void_king", "name": "공허왕", "grade": "legendary", "element": "dark", "atk": 60, "range": 180, "atkSpeed": 0.72, "projectileType": "shadow_aoe", "sprite": "units/l_void_king.png", "skill": "soul_drain"},
+
+    {"id": "h_solar_god", "name": "태양신", "grade": "hidden", "element": "light", "atk": 105, "range": 200, "atkSpeed": 0.6, "projectileType": "solar_flare", "sprite": "units/h_solar_god.png", "skill": "supernova"},
+    {"id": "h_eclipse", "name": "이클립스", "grade": "hidden", "element": "dark", "atk": 95, "range": 210, "atkSpeed": 0.55, "projectileType": "void_beam", "sprite": "units/h_eclipse.png", "skill": "blackout"}
+  ]
+}

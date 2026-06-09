@@ -1,0 +1,16 @@
+{
+  "enemies": [
+    {"id": "m_imp", "name": "임프", "hp": 25, "speed": 40, "sprite": "enemies/m_imp.png", "isBoss": false, "element": "fire"},
+    {"id": "m_slime", "name": "슬라임", "hp": 30, "speed": 36, "sprite": "enemies/m_slime.png", "isBoss": false, "element": "water"},
+    {"id": "m_wisp", "name": "윕", "hp": 22, "speed": 48, "sprite": "enemies/m_wisp.png", "isBoss": false, "element": "wind"},
+    {"id": "m_rocky", "name": "락키", "hp": 45, "speed": 28, "sprite": "enemies/m_rocky.png", "isBoss": false, "element": "earth"},
+    {"id": "m_seraph_minion", "name": "타락천사", "hp": 28, "speed": 42, "sprite": "enemies/m_seraph_minion.png", "isBoss": false, "element": "light"},
+    {"id": "m_shade", "name": "그림자", "hp": 26, "speed": 44, "sprite": "enemies/m_shade.png", "isBoss": false, "element": "dark"},
+
+    {"id": "b_lava_drake", "name": "용암 드레이크", "hp": 800, "speed": 22, "sprite": "enemies/b_lava_drake.png", "isBoss": true, "element": "fire"},
+    {"id": "b_kraken", "name": "크라켄", "hp": 950, "speed": 18, "sprite": "enemies/b_kraken.png", "isBoss": true, "element": "water"},
+    {"id": "b_storm_giant", "name": "폭풍 거인", "hp": 700, "speed": 30, "sprite": "enemies/b_storm_giant.png", "isBoss": true, "element": "wind"},
+    {"id": "b_titan_lord", "name": "타이탄 군주", "hp": 1400, "speed": 16, "sprite": "enemies/b_titan_lord.png", "isBoss": true, "element": "earth"},
+    {"id": "b_void_lord", "name": "공허 군주", "hp": 1100, "speed": 24, "sprite": "enemies/b_void_lord.png", "isBoss": true, "element": "dark"}
+  ]
+}

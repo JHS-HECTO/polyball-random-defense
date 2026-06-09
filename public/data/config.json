@@ -1,0 +1,91 @@
+{
+  "summonCost": {
+    "base": 50,
+    "growth": 1.08,
+    "growthFlat": 5
+  },
+  "rerollCost": 30,
+  "maxUnits": 12,
+  "startGold": 200,
+  "goldPerKill": {
+    "common": 5,
+    "rare": 8,
+    "epic": 12,
+    "legendary": 18,
+    "boss": 60
+  },
+  "goldPerWaveClear": 30,
+  "gradeWeights": {
+    "common": 60,
+    "rare": 28,
+    "epic": 9,
+    "legendary": 2.5,
+    "hidden": 0.5
+  },
+  "dmgByGrade": {
+    "common": 10,
+    "rare": 18,
+    "epic": 32,
+    "legendary": 58,
+    "hidden": 95
+  },
+  "attackSpeedByGrade": {
+    "common": 1.2,
+    "rare": 1.0,
+    "epic": 0.85,
+    "legendary": 0.72,
+    "hidden": 0.6
+  },
+  "rangeByGrade": {
+    "common": 120,
+    "rare": 140,
+    "epic": 160,
+    "legendary": 180,
+    "hidden": 200
+  },
+  "mobHpByWave": {
+    "base": 25,
+    "perWaveMult": 1.18,
+    "bossMult": 14
+  },
+  "mobSpeed": {
+    "base": 40,
+    "perWaveAdd": 1.5,
+    "berserkMult": 1.6
+  },
+  "mobSpawnRate": {
+    "base": 1.0,
+    "perWaveMult": 0.94,
+    "minInterval": 350
+  },
+  "bossEveryNWaves": 5,
+  "berserkEveryNWaves": 10,
+  "bossHpMultiplier": 14,
+  "gameOverMobCount": 100,
+  "anim": {
+    "idleBobAmp": 3,
+    "idleBobPeriodMs": 1200,
+    "idleScaleY": 0.03,
+    "attackLungePx": 12,
+    "attackLungeInMs": 80,
+    "attackLungeOutMs": 150,
+    "attackSquashScaleX": 1.15,
+    "attackSquashScaleY": 0.9,
+    "projectileSpeed": 600,
+    "mobHitFlashMs": 100,
+    "mobKnockbackPx": 6,
+    "mobDeathMs": 240,
+    "summonPopInMs": 220,
+    "mergeFlashMs": 350,
+    "vignetteWarnAtMobCount": 80
+  },
+  "elementAdvantage": {
+    "fire": "wind",
+    "wind": "earth",
+    "earth": "water",
+    "water": "fire",
+    "light": "dark",
+    "dark": "light"
+  },
+  "elementMultiplier": 1.5
+}

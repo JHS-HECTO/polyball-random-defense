@@ -1,0 +1,28 @@
+{
+  "merge": [
+    {"materials": ["c_fire_imp", "c_fire_imp", "c_fire_imp"], "result": "r_fire_mage"},
+    {"materials": ["c_water_drop", "c_water_drop", "c_water_drop"], "result": "r_water_sage"},
+    {"materials": ["c_wind_sprite", "c_wind_sprite", "c_wind_sprite"], "result": "r_wind_archer"},
+    {"materials": ["c_earth_golem", "c_earth_golem", "c_earth_golem"], "result": "r_earth_warrior"},
+    {"materials": ["c_light_priest", "c_light_priest", "c_light_priest"], "result": "r_light_paladin"},
+    {"materials": ["c_dark_shade", "c_dark_shade", "c_dark_shade"], "result": "r_dark_wraith"},
+
+    {"materials": ["r_fire_mage", "r_fire_mage", "r_fire_mage"], "result": "e_fire_sorcerer"},
+    {"materials": ["r_water_sage", "r_water_sage", "r_water_sage"], "result": "e_water_oracle"},
+    {"materials": ["r_wind_archer", "r_wind_archer", "r_wind_archer"], "result": "e_wind_ranger"},
+    {"materials": ["r_earth_warrior", "r_earth_warrior", "r_earth_warrior"], "result": "e_earth_titan"},
+    {"materials": ["r_light_paladin", "r_light_paladin", "r_light_paladin"], "result": "e_light_seraph"},
+    {"materials": ["r_dark_wraith", "r_dark_wraith", "r_dark_wraith"], "result": "e_dark_lich"},
+
+    {"materials": ["e_fire_sorcerer", "e_fire_sorcerer", "e_fire_sorcerer"], "result": "l_phoenix"},
+    {"materials": ["e_water_oracle", "e_water_oracle", "e_water_oracle"], "result": "l_leviathan"},
+    {"materials": ["e_wind_ranger", "e_wind_ranger", "e_wind_ranger"], "result": "l_storm_lord"},
+    {"materials": ["e_earth_titan", "e_earth_titan", "e_earth_titan"], "result": "l_earthshaker"},
+    {"materials": ["e_light_seraph", "e_light_seraph", "e_light_seraph"], "result": "l_archangel"},
+    {"materials": ["e_dark_lich", "e_dark_lich", "e_dark_lich"], "result": "l_void_king"}
+  ],
+  "hidden": [
+    {"name": "태양신 제작", "materials": ["l_phoenix", "l_archangel"], "result": "h_solar_god"},
+    {"name": "이클립스 제작", "materials": ["l_void_king", "l_archangel"], "result": "h_eclipse"}
+  ]
+}
