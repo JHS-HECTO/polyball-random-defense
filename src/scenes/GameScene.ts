@@ -125,20 +125,22 @@ export class GameScene extends Phaser.Scene {
 
     this.projectiles.update(delta);
 
+    // 일반몹 스폰 — 보스전에도 계속 (보스는 보스대로, 몹은 몹대로)
+    this.spawnTimer -= delta;
+    if (this.spawnTimer <= 0) {
+      this.spawnEnemy();
+      this.spawnTimer = this.spawnInterval;
+    }
+
     if (this.bossActive) {
-      // 보스전: 제한시간 내 보스 처치 못하면 게임오버
+      // 보스전: 제한시간 내 보스 처치 못하면 게임오버. 몹은 위에서 계속 스폰됨.
       this.bossTimeLeft -= delta;
       if (this.bossTimeLeft <= 0) {
         this.gameOver('boss_timeout');
       }
     } else {
-      // 일반 웨이브: 30초 + 100마리 균등 스폰
+      // 일반 웨이브: 시간 다 가면 다음 웨이브
       this.waveTimeLeft -= delta;
-      this.spawnTimer -= delta;
-      if (this.spawnTimer <= 0) {
-        this.spawnEnemy();
-        this.spawnTimer = this.spawnInterval;
-      }
       if (this.waveTimeLeft <= 0) {
         this.nextWave();
       }
@@ -687,15 +689,12 @@ export class GameScene extends Phaser.Scene {
     const cfg = registry.config;
     const isBoss = wave % cfg.bossEveryNWaves === 0;
 
+    // 일반몹 스폰 간격 — 보스전/일반 공통 (보스전에도 몹 계속 나옴)
+    this.spawnInterval = cfg.waveDurationMs / cfg.mobsPerWave; // 300ms
+    this.spawnTimer = 200;
+
     if (isBoss) {
-      // 보스전 진입 — 일반몹 전부 제거, 보스 1마리만 등장
-      for (const e of this.enemies) {
-        if (e.alive) {
-          e.alive = false;
-          e.playDeath(() => {});
-        }
-      }
-      this.enemies = [];
+      // 보스전 진입 — 기존 몹 유지 + 보스 1마리 추가 (몹도 계속 스폰)
       this.bossActive = true;
       this.bossTimeLeft = cfg.bossTimeLimitMs;
       this.waveTimeLeft = cfg.bossTimeLimitMs;
@@ -706,8 +705,6 @@ export class GameScene extends Phaser.Scene {
       this.bossActive = false;
       this.waveTimeLeft = cfg.waveDurationMs;
       this.state.waveTotal = Math.round(cfg.waveDurationMs / 1000);
-      this.spawnInterval = cfg.waveDurationMs / cfg.mobsPerWave; // 300ms
-      this.spawnTimer = 200;
       this.hud.flashMessage(`웨이브 ${wave}`);
     }
   }
