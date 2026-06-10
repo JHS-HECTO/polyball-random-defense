@@ -210,5 +210,8 @@
     "legendary": 1.16,
     "mythic_low": 1.22,
     "mythic": 1.3
-  }
+  },
+  "waveSpikeFrom": 11,
+  "waveSpikeHpMult": 1.34,
+  "waveSpikeSpeedAdd": 3.0
 }

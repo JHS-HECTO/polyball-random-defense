@@ -84,6 +84,9 @@ export type GameConfig = {
   mobHpByWave: { base: number; perWaveMult: number; bossMult: number };
   mobSpeed: { base: number; perWaveAdd: number; berserkMult: number; maxSpeed: number };
   mobsPerWave: number;
+  waveSpikeFrom: number;
+  waveSpikeHpMult: number;
+  waveSpikeSpeedAdd: number;
   bossEveryNWaves: number;
   berserkEveryNWaves: number;
   bossHpMultiplier: number;

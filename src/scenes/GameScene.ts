@@ -298,6 +298,7 @@ export class GameScene extends Phaser.Scene {
 
   private attachInput(): void {
     this.input.dragDistanceThreshold = 4;
+    this.input.topOnly = true; // 겹친 유닛 중 최상단 1개만 (정확한 선택)
 
     // 유닛 누름 = 즉시 선택(하이라이트+판매바). threshold 무관 항상 발생.
     this.input.on(Phaser.Input.Events.GAMEOBJECT_DOWN, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
@@ -619,8 +620,15 @@ export class GameScene extends Phaser.Scene {
 
     const mobs = registry.enemies.filter((e) => !e.isBoss);
     const def = mobs[Math.floor(Math.random() * mobs.length)]!;
-    const hp = Math.round(cfg.mobHpByWave.base * Math.pow(cfg.mobHpByWave.perWaveMult, wave - 1));
-    let speed = Math.min(cfg.mobSpeed.maxSpeed, cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1));
+    // HP: 10웨이브까지 완만, 11+ 급상승
+    let hp = cfg.mobHpByWave.base * Math.pow(cfg.mobHpByWave.perWaveMult, Math.min(wave, 10) - 1);
+    if (wave > cfg.waveSpikeFrom - 1) {
+      hp *= Math.pow(cfg.waveSpikeHpMult, wave - (cfg.waveSpikeFrom - 1));
+    }
+    hp = Math.round(hp);
+    let speed = cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1);
+    if (wave >= cfg.waveSpikeFrom) speed += cfg.waveSpikeSpeedAdd * (wave - cfg.waveSpikeFrom + 1);
+    speed = Math.min(cfg.mobSpeed.maxSpeed, speed);
     if (isBerserk) speed = Math.min(cfg.mobSpeed.maxSpeed, speed * cfg.mobSpeed.berserkMult);
 
     const start = this.track.getPoint(0);

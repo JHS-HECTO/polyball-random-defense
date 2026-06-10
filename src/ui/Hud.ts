@@ -65,9 +65,10 @@ export class Hud {
     dim.className = 'hud-ticket-dim';
     dim.innerHTML = `
       <div class="hud-ticket-card">
-        <div class="hud-ticket-emoji">🎟</div>
-        <div class="hud-ticket-title">보스 처치 보상!</div>
-        <div class="hud-ticket-sub">웨이브 ${wave} 클리어<br>응모권 <b>1장</b> 획득</div>
+        <div class="hud-ticket-emoji">⚾</div>
+        <div class="hud-ticket-title">오늘의 4번타자!</div>
+        <div class="hud-ticket-sub">웨이브 ${wave} 보스 처치<br><b>응모권 1장</b> 획득</div>
+        <div class="hud-ticket-pill">🎟 응모권 +1</div>
         <button class="hud-ticket-btn" type="button">받기</button>
       </div>
     `;
@@ -595,6 +596,17 @@ export class Hud {
         margin-bottom: 20px;
       }
       .hud-ticket-sub b { color: var(--gold); font-size: 18px; }
+      .hud-ticket-pill {
+        display: inline-block;
+        margin-bottom: 18px;
+        padding: 6px 18px;
+        background: rgba(255, 176, 32, 0.18);
+        border: 1.5px solid var(--gold);
+        border-radius: var(--r-pill);
+        color: var(--gold);
+        font-size: 15px;
+        font-weight: 800;
+      }
       .hud-ticket-btn {
         width: 100%;
         min-height: 52px;

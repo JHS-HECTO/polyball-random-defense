@@ -110,11 +110,11 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     badge.setOrigin(0.5);
     this.add(badge);
 
-    // 큰 hit 영역 (손가락 터치 안정)
-    this.setSize(76, 84);
+    // hit 영역 = 유닛 시각 크기 (겹침 방지, 정확한 선택). 원형.
+    this.setSize(48, 48);
     this.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-38, -46, 76, 84),
-      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
+      hitArea: new Phaser.Geom.Circle(0, -4, 26),
+      hitAreaCallback: Phaser.Geom.Circle.Contains,
       draggable: true,
       useHandCursor: true,
     });
