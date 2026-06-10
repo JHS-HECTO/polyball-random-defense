@@ -130,6 +130,14 @@
     "mythic_low": 900,
     "mythic": 2500
   },
+  "upgrade": {
+    "baseCost": 35,
+    "costGrowth": 1.5,
+    "costGradeMul": { "common": 1, "rare": 1.8, "epic": 3.4, "legendary": 6, "mythic_low": 10, "mythic": 16 },
+    "atkPctPerLevel": 0.12,
+    "refundRatio": 0.7,
+    "topGradeCapRatio": 1.55
+  },
   "roles": {
     "contact": {
       "atkMul": 1.0,

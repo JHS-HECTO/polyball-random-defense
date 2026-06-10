@@ -110,6 +110,14 @@ export type GameConfig = {
   gameOverMobCount: number;
   sellRatio: number;
   sellByGrade: Record<Grade, number>;
+  upgrade: {
+    baseCost: number;
+    costGrowth: number;
+    costGradeMul: Record<Grade, number>;
+    atkPctPerLevel: number;
+    refundRatio: number;
+    topGradeCapRatio: number;
+  };
   waveDurationMs: number;
   bossTimeLimitMs: number;
   bossBaseHp: number;
@@ -315,14 +323,14 @@ class Registry {
     return 'normal';
   }
 
-  // 등급 × 역할 최종 스탯
-  resolveStats(u: Unit): ResolvedStats {
+  // 등급 × 역할 최종 스탯 (level: 공격력 업그레이드 레벨, 1부터)
+  resolveStats(u: Unit, level = 1): ResolvedStats {
     const role = this.config.roles[u.role];
     const gMul = this.config.gradeMultiplier[u.grade];
     const spdBonus = this.config.gradeSpeedBonus[u.grade];
     const rngBonus = this.config.gradeRangeBonus[u.grade];
     return {
-      atk: Math.round(u.baseAtk * gMul * role.atkMul),
+      atk: Math.round(u.baseAtk * gMul * role.atkMul * this.atkLevelMul(u.grade, level)),
       range: Math.round(u.baseRange * rngBonus * role.rangeMul),
       atkSpeed: u.baseAtkSpeed * spdBonus * role.spdMul,
       splashRadius: role.splash,
@@ -330,6 +338,35 @@ class Registry {
       projSpeed: role.projSpd,
       projSize: role.projSize,
     };
+  }
+
+  // ─── 업그레이드 (공격력 레벨업) ───────────────────────────────
+  // 상위 등급을 못 넘게 cap: 풀레벨 보너스 < (다음등급배수/현등급배수). 최상위는 topGradeCapRatio.
+  upgradeMaxLevel(grade: Grade): number {
+    const up = this.config.upgrade;
+    const order = this.gradeOrder();
+    const i = order.indexOf(grade);
+    const next = order[i + 1];
+    const capRatio = next
+      ? this.config.gradeMultiplier[next] / this.config.gradeMultiplier[grade]
+      : up.topGradeCapRatio;
+    const maxBonus = capRatio - 1 - 0.02; // 다음 등급 기본치보다 살짝 아래에서 멈춤
+    const lvUps = Math.max(0, Math.floor(maxBonus / up.atkPctPerLevel));
+    return 1 + lvUps;
+  }
+
+  // 공격력 레벨 배수 (cap 적용)
+  atkLevelMul(grade: Grade, level: number): number {
+    const up = this.config.upgrade;
+    const lv = Math.max(1, Math.min(level, this.upgradeMaxLevel(grade)));
+    return 1 + (lv - 1) * up.atkPctPerLevel;
+  }
+
+  // 레벨 L → L+1 업그레이드 비용
+  upgradeCost(grade: Grade, level: number): number {
+    const up = this.config.upgrade;
+    const gm = up.costGradeMul[grade];
+    return Math.round(up.baseCost * gm * Math.pow(up.costGrowth, level - 1));
   }
 
   // 속성 상성 데미지 배수

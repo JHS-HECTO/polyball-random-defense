@@ -28,6 +28,9 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   readonly uid: number;
   def: Unit;
   summonPrice: number;
+  // 공격력 업그레이드 레벨 (1부터) + 누적 투자 골드
+  level: number = 1;
+  investedGold: number = 0;
   // 등급×역할 최종 스탯
   atk: number;
   range: number;
@@ -51,6 +54,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   private batG: Phaser.GameObjects.Graphics;
   private rangeG: Phaser.GameObjects.Graphics;
   private glowG: Phaser.GameObjects.Graphics;
+  private levelLabel: Phaser.GameObjects.Text | null = null;
   private idleSeed: number;
   private swingMs = 0;
   private swingDuration = 200;
@@ -126,6 +130,19 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     });
     badge.setOrigin(0.5);
     this.add(badge);
+
+    // 레벨 라벨 (좌상단, Lv2부터 표시)
+    this.levelLabel = scene.add.text(-16, -22, '', {
+      fontFamily: 'Pretendard, system-ui, sans-serif',
+      fontSize: '10px',
+      color: '#ffe08a',
+      fontStyle: 'bold',
+      backgroundColor: '#5a4410',
+      padding: { x: 3, y: 1 },
+    });
+    this.levelLabel.setOrigin(0.5);
+    this.add(this.levelLabel);
+    this.updateLevelLabel();
 
     // hit 영역 = 유닛 시각 크기 (겹침 방지, 정확한 선택). 원형.
     this.setSize(48, 48);
@@ -323,8 +340,50 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   }
 
   sellRefund(): number {
-    // 등급별 판매가 (희소할수록 비쌈)
-    return registry.config.sellByGrade[this.def.grade];
+    // 등급별 판매가 + 업그레이드 투자금의 일부 환불
+    const base = registry.config.sellByGrade[this.def.grade];
+    const back = Math.floor(this.investedGold * registry.config.upgrade.refundRatio);
+    return base + back;
+  }
+
+  // ─── 업그레이드 (공격력 레벨업) ───────────────────────────────
+  maxLevel(): number {
+    if (this.isSupport) return 1; // 지원유닛은 공격력 없음 → 업글 불가
+    return registry.upgradeMaxLevel(this.def.grade);
+  }
+
+  canUpgrade(): boolean {
+    return !this.isSupport && this.level < this.maxLevel();
+  }
+
+  // 다음 레벨 비용 (현재 레벨 기준)
+  upgradeCostNext(): number {
+    return registry.upgradeCost(this.def.grade, this.level);
+  }
+
+  // 레벨 +1, 공격력 재계산 (GameScene이 골드 차감·투자금 누적 후 호출)
+  applyUpgrade(): void {
+    this.level += 1;
+    this.atk = registry.resolveStats(this.def, this.level).atk;
+    this.updateLevelLabel();
+    this.scene.tweens.add({
+      targets: this.base,
+      scaleX: 1.28,
+      scaleY: 1.28,
+      yoyo: true,
+      duration: 130,
+      ease: 'Quad.easeOut',
+    });
+  }
+
+  private updateLevelLabel(): void {
+    if (!this.levelLabel) return;
+    if (this.level > 1) {
+      this.levelLabel.setText(`Lv${this.level}`);
+      this.levelLabel.setVisible(true);
+    } else {
+      this.levelLabel.setVisible(false);
+    }
   }
 
   private lighten(c: number, p: number): number {

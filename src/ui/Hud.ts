@@ -58,28 +58,62 @@ export class Hud {
   private sellBarEl: HTMLDivElement | null = null;
   private ticketPopupEl: HTMLDivElement | null = null;
 
-  // 유닛 정보 패널 (이름·등급·역할설명·스탯 + 판매)
+  // 유닛 정보 패널 (이름·등급·역할설명·스탯 + 업그레이드 + 판매)
   showUnitInfo(
-    info: { name: string; gradeLabel: string; gradeColor: string; statLine: string; desc: string; refund: number },
+    info: {
+      name: string;
+      gradeLabel: string;
+      gradeColor: string;
+      statLine: string;
+      desc: string;
+      refund: number;
+      level: number;
+      maxLevel: number;
+      canUpgrade: boolean;
+      upgradeCost: number;
+      affordable: boolean;
+      isSupport: boolean;
+    },
     onSell: () => void,
+    onUpgrade: () => void,
   ): void {
     this.hideSellBar();
     const bar = document.createElement('div');
     bar.className = 'hud-sellbar hud-unitinfo';
+
+    // 업그레이드 버튼: 지원유닛이면 숨김, MAX면 비활성, 골드 부족이면 흐리게
+    let upgradeBtn = '';
+    if (!info.isSupport) {
+      if (!info.canUpgrade) {
+        upgradeBtn = `<button class="hud-up-btn maxed" type="button" disabled>MAX<br><b>Lv${info.level}</b></button>`;
+      } else {
+        const dim = info.affordable ? '' : ' poor';
+        upgradeBtn = `<button class="hud-up-btn${dim}" type="button">강화 Lv${info.level}→${info.level + 1}<br><b>💰${info.upgradeCost}</b></button>`;
+      }
+    }
+    const lvTag = info.level > 1 ? `<span class="hud-ui-lv">Lv${info.level}</span>` : '';
+
     bar.innerHTML = `
       <div class="hud-ui-main">
         <div class="hud-ui-name">
           <span class="hud-ui-grade" style="background:${info.gradeColor}">${info.gradeLabel}</span>
-          ${info.name}
+          ${info.name}${lvTag}
         </div>
         <div class="hud-ui-stat">${info.statLine}</div>
         <div class="hud-ui-desc">${info.desc}</div>
       </div>
-      <button class="hud-sellbar-btn" type="button">판매<br><b>+${info.refund}</b></button>
+      <div class="hud-ui-btns">
+        ${upgradeBtn}
+        <button class="hud-sellbar-btn" type="button">판매<br><b>+${info.refund}</b></button>
+      </div>
     `;
     bar.querySelector('.hud-sellbar-btn')?.addEventListener('click', (ev) => {
       ev.stopPropagation();
       onSell();
+    });
+    bar.querySelector('.hud-up-btn:not([disabled])')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      onUpgrade();
     });
     this.root.appendChild(bar);
     this.sellBarEl = bar;
@@ -488,6 +522,27 @@ export class Hud {
       }
       .hud-ui-stat { font-size: 12px; font-weight: 700; color: var(--ink-2); }
       .hud-ui-desc { font-size: 11px; color: var(--ink-3); line-height: 1.4; }
+      .hud-ui-lv {
+        font-size: 11px; font-weight: 800; color: #2c1d12;
+        background: #ffd35e; padding: 1px 6px; border-radius: 6px; flex: 0 0 auto;
+      }
+      .hud-ui-btns {
+        flex: 0 0 auto;
+        display: flex; flex-direction: column; gap: 6px; align-items: stretch;
+      }
+      .hud-up-btn {
+        min-height: 38px; padding: 5px 14px;
+        background: linear-gradient(180deg, #ffd35e 0%, #ffb347 100%);
+        color: #2c1d12; border: 0; border-radius: var(--r-sm);
+        font-family: inherit; font-size: 12px; font-weight: 800;
+        white-space: nowrap; cursor: pointer; line-height: 1.2; text-align: center;
+      }
+      .hud-up-btn:active { transform: scale(0.96); }
+      .hud-up-btn.poor { opacity: 0.5; }
+      .hud-up-btn.maxed {
+        background: #3a4150; color: #9aa5b1; cursor: default;
+      }
+      .hud-ui-btns .hud-sellbar-btn { min-height: 38px; padding: 5px 18px; font-size: 13px; }
 
       .hud-bottom {
         position: absolute;

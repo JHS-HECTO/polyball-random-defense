@@ -370,13 +370,18 @@ export class GameScene extends Phaser.Scene {
     this.deselect();
     this.selectedUnit = u;
     u.setSelected(true);
-    // HUD 정보 패널 (유닛명·등급·역할·설명·스탯 + 판매)
+    this.openUnitPanel(u);
+  }
+
+  // 정보 패널 빌드 (업그레이드 후 갱신에도 재사용)
+  private openUnitPanel(u: UnitEntity): void {
     const roleCfg = registry.config.roles[u.def.role];
     const gColor = registry.config.gradeColors[u.def.grade];
     const gLabel = registry.config.gradeLabels[u.def.grade];
     const statLine = u.isSupport
       ? `${roleCfg.badge} ${roleCfg.label} · 범위 ${Math.round(u.supportRadius())}`
       : `${roleCfg.badge} ${roleCfg.label} · ⚔${u.atk} · 사거리 ${u.range} · 공속 ${(1 / u.atkSpeed).toFixed(1)}/s`;
+    const cost = u.upgradeCostNext();
     this.hud.showUnitInfo(
       {
         name: u.def.name,
@@ -385,11 +390,35 @@ export class GameScene extends Phaser.Scene {
         statLine,
         desc: roleCfg.desc,
         refund: u.sellRefund(),
+        level: u.level,
+        maxLevel: u.maxLevel(),
+        canUpgrade: u.canUpgrade(),
+        upgradeCost: cost,
+        affordable: this.state.canAfford(cost),
+        isSupport: u.isSupport,
       },
       () => {
         if (this.selectedUnit) this.sellUnit(this.selectedUnit);
       },
+      () => {
+        if (this.selectedUnit) this.tryUpgrade(this.selectedUnit);
+      },
     );
+  }
+
+  private tryUpgrade(u: UnitEntity): void {
+    if (!u.canUpgrade()) return;
+    const cost = u.upgradeCostNext();
+    if (!this.state.canAfford(cost)) {
+      this.hud.flashMessage('골드 부족');
+      return;
+    }
+    this.state.spend(cost);
+    u.investedGold += cost;
+    u.applyUpgrade();
+    this.spawnFloatText(u.x, u.y - 24, `Lv${u.level}!`, '#ffe08a');
+    this.openUnitPanel(u); // 패널 갱신 (atk·다음비용·MAX)
+    this.publishHud();
   }
 
   private deselect(): void {
