@@ -322,6 +322,6 @@
     "slowPctBase": 0.2,
     "slowPctPerGrade": 0.06,
     "slowPctCap": 0.6,
-    "supportSummonWeightMul": 0.6
+    "supportSummonWeightMul": 0.22
   }
 }
