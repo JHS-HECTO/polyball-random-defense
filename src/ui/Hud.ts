@@ -29,14 +29,12 @@ export class Hud {
     top: HTMLDivElement;
     nick: HTMLSpanElement;
     wave: HTMLSpanElement;
-    progressBar: HTMLDivElement;
-    progressText: HTMLSpanElement;
+    mobBar: HTMLDivElement;
+    mobText: HTMLSpanElement;
     score: HTMLSpanElement;
     gold: HTMLSpanElement;
     tickets: HTMLSpanElement;
-    mobCounter: HTMLDivElement;
-    mobText: HTMLSpanElement;
-    mobBar: HTMLDivElement;
+    timerText: HTMLSpanElement;
     bottom: HTMLDivElement;
     summonBtn: HTMLButtonElement;
     summonCost: HTMLSpanElement;
@@ -63,6 +61,29 @@ export class Hud {
 
   setOnSellMode(fn: (v: boolean) => void): void {
     this.sellModeHandler = fn;
+  }
+
+  private sellBarEl: HTMLDivElement | null = null;
+
+  showSellBar(title: string, refund: number, onSell: () => void): void {
+    this.hideSellBar();
+    const bar = document.createElement('div');
+    bar.className = 'hud-sellbar';
+    bar.innerHTML = `
+      <span class="hud-sellbar-title">${title}</span>
+      <button class="hud-sellbar-btn" type="button">판매 <b>+${refund}</b> ⛁</button>
+    `;
+    this.root.appendChild(bar);
+    const btn = bar.querySelector('.hud-sellbar-btn') as HTMLButtonElement;
+    btn.addEventListener('click', () => onSell());
+    this.sellBarEl = bar;
+  }
+
+  hideSellBar(): void {
+    if (this.sellBarEl) {
+      this.sellBarEl.remove();
+      this.sellBarEl = null;
+    }
   }
 
   flashMessage(msg: string): void {
@@ -93,9 +114,9 @@ export class Hud {
         <div class="hud-wave"><span class="hud-wave-label">WAVE</span> <span class="hud-wave-num"></span></div>
         <div class="hud-score"><span class="hud-score-label">SCORE</span> <span class="hud-score-num"></span></div>
       </div>
-      <div class="hud-progress">
-        <div class="hud-progress-bar"><div class="hud-progress-fill"></div></div>
-        <span class="hud-progress-text"></span>
+      <div class="hud-mobgauge">
+        <div class="hud-mobgauge-bar"><div class="hud-mobgauge-fill"></div></div>
+        <span class="hud-mobgauge-text"></span>
       </div>
       <div class="hud-top-row3">
         <div class="hud-pill hud-pill-gold">
@@ -106,12 +127,11 @@ export class Hud {
           <span class="hud-icon">🎟</span>
           <span class="hud-ticket-num"></span>
         </div>
-        <div class="hud-mob-counter">
-          <span class="hud-mob-icon">⚠</span>
-          <span class="hud-mob-text"></span>
+        <div class="hud-pill hud-pill-timer">
+          <span class="hud-icon">⏱</span>
+          <span class="hud-timer-text"></span>
         </div>
       </div>
-      <div class="hud-mob-bar"><div class="hud-mob-bar-fill"></div></div>
     `;
     this.root.appendChild(top);
 
@@ -146,14 +166,12 @@ export class Hud {
       top,
       nick: $('.hud-nick-text'),
       wave: $('.hud-wave-num'),
-      progressBar: $('.hud-progress-fill') as HTMLDivElement,
-      progressText: $('.hud-progress-text'),
+      mobBar: $('.hud-mobgauge-fill') as HTMLDivElement,
+      mobText: $('.hud-mobgauge-text'),
       score: $('.hud-score-num'),
       gold: $('.hud-gold-num'),
       tickets: $('.hud-ticket-num'),
-      mobCounter: $('.hud-mob-counter') as HTMLDivElement,
-      mobText: $('.hud-mob-text'),
-      mobBar: $('.hud-mob-bar-fill') as HTMLDivElement,
+      timerText: $('.hud-timer-text'),
       bottom,
       summonBtn: $('.hud-summon') as HTMLButtonElement,
       summonCost: $('.hud-summon-cost-num'),
@@ -175,6 +193,7 @@ export class Hud {
   }
 
   destroy(): void {
+    this.sellBarEl = null;
     this.root.innerHTML = '';
     this.elements = null;
   }
@@ -185,29 +204,32 @@ export class Hud {
     e.nick.textContent = s.nickname;
     e.wave.textContent = String(s.wave);
     e.score.textContent = s.score.toLocaleString();
-    if (s.bossActive) {
-      // 보스전: 진행바 = 보스 HP, 텍스트 = 남은시간(빨강)
-      e.progressBar.style.width = `${Math.min(1, Math.max(0, s.bossHpRatio)) * 100}%`;
-      e.progressBar.style.background = 'linear-gradient(90deg, #FF4D4D 0%, #ff8c8c 100%)';
-      e.progressText.textContent = `보스 ${s.waveRemainSec}초`;
-      e.progressText.style.color = '#FF4D4D';
-    } else {
-      const ratio = s.waveTotal > 0 ? s.waveProgress / s.waveTotal : 0;
-      e.progressBar.style.width = `${Math.min(1, Math.max(0, ratio)) * 100}%`;
-      e.progressBar.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%)';
-      e.progressText.textContent = `${s.waveRemainSec}초`;
-      e.progressText.style.color = 'var(--ink-2)';
-    }
-    e.gold.textContent = s.gold.toLocaleString();
-    e.tickets.textContent = `${s.tickets}/${s.ticketsCap}`;
-    e.mobText.textContent = `${s.mobs}/${s.mobsCap}`;
+
+    // ★ 메인 바 = 필드 몹 게이지 (100 차면 게임오버)
     const mobRatio = s.mobsCap > 0 ? s.mobs / s.mobsCap : 0;
     e.mobBar.style.width = `${Math.min(1, mobRatio) * 100}%`;
-    // 위험 등급에 따른 색
+    e.mobText.textContent = `${s.mobs} / ${s.mobsCap}`;
+    // 비율별 색 (초록→노랑→빨강)
+    let barColor: string;
+    if (mobRatio < 0.5) barColor = 'linear-gradient(90deg, #3DD68C 0%, #5be0a0 100%)';
+    else if (mobRatio < 0.8) barColor = 'linear-gradient(90deg, #FFB020 0%, #ffc94d 100%)';
+    else barColor = 'linear-gradient(90deg, #FF4D4D 0%, #ff8080 100%)';
+    e.mobBar.style.background = barColor;
     const danger = mobRatio >= 0.8;
-    e.mobCounter.classList.toggle('danger', danger);
     e.mobBar.classList.toggle('danger', danger);
     e.vignette.classList.toggle('on', danger);
+
+    // 타이머 칩: 보스전이면 보스 남은시간(빨강), 일반이면 웨이브 시간
+    if (s.bossActive) {
+      e.timerText.textContent = `보스 ${s.waveRemainSec}s`;
+      (e.timerText.parentElement as HTMLElement).classList.add('boss');
+    } else {
+      e.timerText.textContent = `${s.waveRemainSec}s`;
+      (e.timerText.parentElement as HTMLElement).classList.remove('boss');
+    }
+
+    e.gold.textContent = s.gold.toLocaleString();
+    e.tickets.textContent = `${s.tickets}/${s.ticketsCap}`;
 
     e.summonCost.textContent = s.summonCost.toLocaleString();
     e.unitCount.textContent = `유닛 ${s.units}/${s.unitsMax}`;
@@ -297,33 +319,40 @@ export class Hud {
         color: var(--ink-1);
       }
 
-      .hud-progress {
+      /* 메인 몹 게이지 (100 차면 게임오버) */
+      .hud-mobgauge {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 8px;
       }
-
-      .hud-progress-bar {
+      .hud-mobgauge-bar {
         flex: 1;
-        height: 0.8rem;
-        background: rgba(255, 255, 255, 0.1);
+        height: 16px;
+        background: rgba(255,255,255,0.1);
+        border: 1px solid var(--border);
         border-radius: var(--r-pill);
         overflow: hidden;
       }
-
-      .hud-progress-fill {
+      .hud-mobgauge-fill {
         height: 100%;
-        background: linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%);
         width: 0;
-        transition: width 0.18s ease-out;
+        background: linear-gradient(90deg, #3DD68C 0%, #5be0a0 100%);
+        transition: width 0.2s ease-out;
       }
-
-      .hud-progress-text {
-        font-size: 12px;
-        font-weight: 700;
-        color: var(--ink-2);
-        min-width: 40px;
+      .hud-mobgauge-fill.danger {
+        animation: hud-mob-bar-pulse 0.5s ease-in-out infinite;
+      }
+      @keyframes hud-mob-bar-pulse {
+        0%,100% { filter: brightness(1); }
+        50% { filter: brightness(1.5); }
+      }
+      .hud-mobgauge-text {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--ink-1);
+        min-width: 64px;
         text-align: right;
+        white-space: nowrap;
       }
 
       .hud-pill {
@@ -348,62 +377,65 @@ export class Hud {
         border: 0.1rem solid rgba(255, 209, 102, 0.5);
       }
 
+      .hud-pill-timer {
+        background: rgba(255,255,255,0.08);
+        border: 0.1rem solid rgba(255,255,255,0.18);
+        color: var(--ink-2);
+      }
+      .hud-pill-timer.boss {
+        background: rgba(255,77,77,0.25);
+        border-color: var(--danger);
+        color: #fff;
+      }
+
       .hud-icon {
         font-size: 14px;
       }
 
-      .hud-mob-counter {
-        display: inline-flex;
+      /* 유닛 선택 판매바 (DOM, 확실한 터치) */
+      .hud-sellbar {
+        position: absolute;
+        left: 12px; right: 12px;
+        bottom: 88px;
+        display: flex;
         align-items: center;
-        gap: 0.3rem;
-        padding: 4px 10px;
-        border-radius: var(--r-pill);
-        background: rgba(255, 255, 255, 0.08);
-        border: 0.1rem solid rgba(255, 255, 255, 0.18);
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 12px;
+        background: var(--bg-card);
+        border: 2px solid var(--danger);
+        border-radius: var(--r-md);
+        box-shadow: var(--shadow-2);
+        z-index: 15;
+        animation: hud-sellbar-in 0.15s ease-out;
+      }
+      @keyframes hud-sellbar-in {
+        from { transform: translateY(8px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+      .hud-sellbar-title {
+        font-size: 14px;
         font-weight: 700;
-        font-size: 13px;
-        color: var(--ink-2);
-        white-space: nowrap;
-        transition: all 0.2s ease;
-      }
-
-      .hud-mob-counter.danger {
-        background: rgba(226, 85, 85, 0.3);
-        border-color: var(--danger);
         color: var(--ink-1);
-        animation: hud-mob-blink 0.6s ease-in-out infinite;
-      }
-
-      @keyframes hud-mob-blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
-      }
-
-      .hud-mob-icon {
-        font-size: 13px;
-      }
-
-      .hud-mob-bar {
-        height: 0.5rem;
-        background: rgba(255, 255, 255, 0.08);
-        border-radius: var(--r-pill);
+        white-space: nowrap;
         overflow: hidden;
+        text-overflow: ellipsis;
       }
-
-      .hud-mob-bar-fill {
-        height: 100%;
-        background: linear-gradient(90deg, var(--ok) 0%, var(--warn) 60%, var(--danger) 100%);
-        width: 0;
-        transition: width 0.18s ease-out;
+      .hud-sellbar-btn {
+        flex: 0 0 auto;
+        min-height: 44px;
+        padding: 8px 18px;
+        background: var(--danger);
+        color: #fff;
+        border: 0;
+        border-radius: var(--r-sm);
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 800;
+        white-space: nowrap;
+        cursor: pointer;
       }
-
-      .hud-mob-bar-fill.danger {
-        animation: hud-mob-bar-pulse 0.5s ease-in-out infinite;
-      }
-      @keyframes hud-mob-bar-pulse {
-        0%, 100% { filter: brightness(1); }
-        50% { filter: brightness(1.4); }
-      }
+      .hud-sellbar-btn:active { transform: scale(0.96); }
 
       .hud-bottom {
         position: absolute;

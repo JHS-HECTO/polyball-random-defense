@@ -57,7 +57,6 @@ export class GameScene extends Phaser.Scene {
   private dragPrevX = 0;
   private dragPrevY = 0;
   private selectedUnit: UnitEntity | null = null;
-  private sellBtn: Phaser.GameObjects.Container | null = null;
   private sellMode = false;
 
   constructor() {
@@ -150,11 +149,6 @@ export class GameScene extends Phaser.Scene {
     // 게임오버 (생존 몹 100) — 보스전/일반 공통
     if (this.aliveEnemyCount() >= registry.config.gameOverMobCount) {
       this.gameOver('mob_overflow');
-    }
-
-    // 선택 sell 버튼 위치 추적
-    if (this.selectedUnit && this.sellBtn) {
-      this.sellBtn.setPosition(this.selectedUnit.x, this.selectedUnit.y - 44);
     }
 
     this.publishHud();
@@ -365,8 +359,7 @@ export class GameScene extends Phaser.Scene {
     // 빈 공간 탭 → 선택 해제
     this.input.on(Phaser.Input.Events.POINTER_DOWN, (_p: Phaser.Input.Pointer, currentlyOver: Phaser.GameObjects.GameObject[]) => {
       const overUnit = currentlyOver.some((o) => o instanceof UnitEntity);
-      const overSell = currentlyOver.some((o) => o === this.sellBtn || (this.sellBtn && this.sellBtn.list.includes(o as never)));
-      if (!overUnit && !overSell) this.deselect();
+      if (!overUnit) this.deselect();
     });
   }
 
@@ -386,30 +379,14 @@ export class GameScene extends Phaser.Scene {
     this.deselect();
     this.selectedUnit = u;
     u.setSelected(true);
-    // 플로팅 판매 버튼
-    const c = this.add.container(u.x, u.y - 44);
-    c.setDepth(50);
-    const g = this.add.graphics();
-    g.fillStyle(0xff4d4d, 1);
-    g.lineStyle(2, 0x8a2020, 1);
-    g.fillRoundedRect(-52, -18, 104, 36, 10);
-    g.strokeRoundedRect(-52, -18, 104, 36, 10);
-    c.add(g);
-    const refund = u.sellRefund();
-    const t = this.add.text(0, 0, `판매 +${refund}`, {
-      fontFamily: 'Pretendard, system-ui, sans-serif',
-      fontSize: '16px',
-      color: '#ffffff',
-      fontStyle: 'bold',
-    });
-    t.setOrigin(0.5);
-    c.add(t);
-    c.setSize(104, 36);
-    c.setInteractive(new Phaser.Geom.Rectangle(-52, -18, 104, 36), Phaser.Geom.Rectangle.Contains);
-    c.on('pointerup', () => {
-      if (this.selectedUnit) this.sellUnit(this.selectedUnit);
-    });
-    this.sellBtn = c;
+    // HUD DOM 판매바 표시 (확실한 터치)
+    this.hud.showSellBar(
+      `${u.def.name} · ${registry.config.gradeLabels[u.def.grade]}`,
+      u.sellRefund(),
+      () => {
+        if (this.selectedUnit) this.sellUnit(this.selectedUnit);
+      },
+    );
   }
 
   private deselect(): void {
@@ -417,10 +394,7 @@ export class GameScene extends Phaser.Scene {
       this.selectedUnit.setSelected(false);
       this.selectedUnit = null;
     }
-    if (this.sellBtn) {
-      this.sellBtn.destroy();
-      this.sellBtn = null;
-    }
+    this.hud.hideSellBar();
   }
 
   private sellUnit(u: UnitEntity): void {
