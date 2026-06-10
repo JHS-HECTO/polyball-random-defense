@@ -17,7 +17,6 @@ export type HudState = {
   mobs: number;
   mobsCap: number;
   summonCost: number;
-  sellMode: boolean;
   waveRemainSec: number;
   bossActive: boolean;
   bossHpRatio: number;
@@ -39,14 +38,11 @@ export class Hud {
     summonBtn: HTMLButtonElement;
     summonCost: HTMLSpanElement;
     unitCount: HTMLSpanElement;
-    sellModeBtn: HTMLButtonElement;
     toast: HTMLDivElement;
     vignette: HTMLDivElement;
   } | null = null;
 
   private clickHandler: (() => void) | null = null;
-  private sellModeHandler: ((v: boolean) => void) | null = null;
-  private sellModeOn = false;
   private toastTimer: number | null = null;
 
   constructor(_scene: Phaser.Scene) {
@@ -57,10 +53,6 @@ export class Hud {
 
   setOnSummon(fn: () => void): void {
     this.clickHandler = fn;
-  }
-
-  setOnSellMode(fn: (v: boolean) => void): void {
-    this.sellModeHandler = fn;
   }
 
   private sellBarEl: HTMLDivElement | null = null;
@@ -144,10 +136,6 @@ export class Hud {
     const bottom = document.createElement('div');
     bottom.className = 'hud-bottom';
     bottom.innerHTML = `
-      <button class="hud-sellmode" type="button">
-        <span class="hud-sellmode-icon">💰</span>
-        <span class="hud-sellmode-label">판매</span>
-      </button>
       <button class="hud-summon" type="button">
         <span class="hud-summon-label">유닛 소환</span>
         <span class="hud-summon-cost">⛁ <span class="hud-summon-cost-num"></span></span>
@@ -176,18 +164,11 @@ export class Hud {
       summonBtn: $('.hud-summon') as HTMLButtonElement,
       summonCost: $('.hud-summon-cost-num'),
       unitCount: $('.hud-summon-count'),
-      sellModeBtn: $('.hud-sellmode') as HTMLButtonElement,
       toast,
       vignette,
     };
 
     this.elements.summonBtn.addEventListener('click', () => this.clickHandler?.());
-    this.elements.sellModeBtn.addEventListener('click', () => {
-      this.sellModeOn = !this.sellModeOn;
-      this.elements?.sellModeBtn.classList.toggle('on', this.sellModeOn);
-      this.sellModeHandler?.(this.sellModeOn);
-    });
-    this.elements.sellModeBtn.classList.toggle('on', this.sellModeOn);
 
     this.injectStyles();
   }
@@ -234,8 +215,6 @@ export class Hud {
     e.summonCost.textContent = s.summonCost.toLocaleString();
     e.unitCount.textContent = `유닛 ${s.units}/${s.unitsMax}`;
     e.summonBtn.disabled = s.units >= s.unitsMax || s.gold < s.summonCost;
-    this.sellModeOn = s.sellMode;
-    e.sellModeBtn.classList.toggle('on', s.sellMode);
   }
 
   private injectStyles(): void {
@@ -448,38 +427,7 @@ export class Hud {
         gap: 0.8rem;
       }
 
-      /* 판매모드 = 작은 토글 칩 (px 고정) */
-      .hud-sellmode {
-        flex: 0 0 auto;
-        width: 60px;
-        min-height: 48px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        padding: 4px;
-        background: var(--bg-panel);
-        border: 2px solid var(--border);
-        border-radius: var(--r-md);
-        color: var(--ink-3);
-        font-family: inherit;
-        cursor: pointer;
-        transition: all 0.15s ease;
-      }
-      .hud-sellmode.on {
-        background: rgba(255, 77, 77, 0.18);
-        border-color: var(--danger);
-        color: var(--ink-1);
-      }
-      .hud-sellmode-icon { font-size: 16px; }
-      .hud-sellmode-label {
-        font-size: 11px;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-
-      /* 소환 = 넓은 가로 버튼, 한 줄 */
+      /* 소환 = 풀폭 가로 버튼, 한 줄 */
       .hud-summon {
         position: relative;
         flex: 1 1 auto;

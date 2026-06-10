@@ -53,7 +53,6 @@ export class GameScene extends Phaser.Scene {
   private draggingUnit: UnitEntity | null = null;
   private dragMoved = false;
   private selectedUnit: UnitEntity | null = null;
-  private sellMode = false;
 
   constructor() {
     super({ key: 'Game' });
@@ -66,7 +65,6 @@ export class GameScene extends Phaser.Scene {
     this.enemies = [];
     this.isGameOver = false;
     this.selectedUnit = null;
-    this.sellMode = false;
 
     this.buildTrack();
     this.drawBackground();
@@ -77,10 +75,6 @@ export class GameScene extends Phaser.Scene {
     this.hud = new Hud(this);
     this.hud.mount();
     this.hud.setOnSummon(() => this.trySummon());
-    this.hud.setOnSellMode((v) => {
-      this.sellMode = v;
-      if (!v) this.deselect();
-    });
 
     this.startWave(1);
     this.publishHud();
@@ -308,10 +302,6 @@ export class GameScene extends Phaser.Scene {
     // 유닛 누름 = 즉시 선택(하이라이트+판매바). threshold 무관 항상 발생.
     this.input.on(Phaser.Input.Events.GAMEOBJECT_DOWN, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
       if (!(obj instanceof UnitEntity)) return;
-      if (this.sellMode) {
-        this.sellUnit(obj);
-        return;
-      }
       this.selectUnit(obj);
     });
 
@@ -610,7 +600,6 @@ export class GameScene extends Phaser.Scene {
       mobs: this.aliveEnemyCount(),
       mobsCap: registry.config.gameOverMobCount,
       summonCost: this.state.summonCost,
-      sellMode: this.sellMode,
       bossActive: this.bossActive,
       bossHpRatio: this.bossRef && this.bossRef.alive ? Math.max(0, this.bossRef.hp / this.bossRef.hpMax) : 0,
     });
