@@ -1,33 +1,35 @@
 :root {
-  --bg-app: #0a0d14;
-  --bg-frame: #11161f;
-  --bg-card: #1a212d;
-  --bg-panel: #232c3b;
-  --bg-elevated: #2c3749;
+  /* 디자인 시스템 토큰 (다크) */
+  --bg-app: #0e1116;
+  --bg-frame: #0e1116;
+  --bg-card: #1a1f28;
+  --bg-panel: #1a1f28;
+  --bg-elevated: #2a3340;
+  --border: #2a3340;
   --ink-1: #ffffff;
   --ink-2: #c3cbd9;
-  --ink-3: #7d8699;
-  --accent: #ffb347;
-  --accent-strong: #ff8c42;
-  --gold: #f6c531;
-  --ticket: #ffd166;
-  --hp: #e25555;
+  --ink-3: #9aa5b1;
+  --accent: #ff8a3d;
+  --accent-strong: #ff7a1f;
+  --gold: #ffb020;
+  --ticket: #ffb020;
+  --hp: #ff4d4d;
   --hp-soft: #ff8c8c;
-  --ok: #5bb95b;
-  --warn: #f4b840;
-  --danger: #e25555;
-  --boss: #b94a4a;
-  --grade-common: #98a4b7;
-  --grade-rare: #6ec8ff;
-  --grade-epic: #d4a5ff;
-  --grade-legendary: #ffd35e;
-  --grade-hidden: #ff8c42;
-  --r-sm: 0.6rem;
-  --r-md: 1rem;
-  --r-lg: 1.6rem;
-  --r-pill: 999rem;
-  --shadow-1: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.3);
-  --shadow-2: 0 0.4rem 1.2rem rgba(0, 0, 0, 0.4);
+  --ok: #3dd68c;
+  --warn: #ffb020;
+  --danger: #ff4d4d;
+  --boss: #ff4d4d;
+  --grade-common: #9aa5b1;
+  --grade-rare: #4da3ff;
+  --grade-epic: #b05cff;
+  --grade-legendary: #ffb020;
+  --grade-hidden: #ff4d8d;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 *, *::before, *::after { box-sizing: border-box; }

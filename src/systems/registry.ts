@@ -59,6 +59,8 @@ export type GameConfig = {
   berserkEveryNWaves: number;
   bossHpMultiplier: number;
   gameOverMobCount: number;
+  sellRatio: number;
+  waveDurationMs: number;
   anim: {
     idleBobAmp: number;
     idleBobPeriodMs: number;

@@ -17,7 +17,8 @@ export type HudState = {
   mobs: number;
   mobsCap: number;
   summonCost: number;
-  autoMerge: boolean;
+  sellMode: boolean;
+  waveRemainSec: number;
 };
 
 export class Hud {
@@ -38,14 +39,14 @@ export class Hud {
     summonBtn: HTMLButtonElement;
     summonCost: HTMLSpanElement;
     unitCount: HTMLSpanElement;
-    autoMergeBtn: HTMLButtonElement;
+    sellModeBtn: HTMLButtonElement;
     toast: HTMLDivElement;
     vignette: HTMLDivElement;
   } | null = null;
 
   private clickHandler: (() => void) | null = null;
-  private autoMergeHandler: ((v: boolean) => void) | null = null;
-  private autoMergeOn = true;
+  private sellModeHandler: ((v: boolean) => void) | null = null;
+  private sellModeOn = false;
   private toastTimer: number | null = null;
 
   constructor(_scene: Phaser.Scene) {
@@ -58,8 +59,8 @@ export class Hud {
     this.clickHandler = fn;
   }
 
-  setOnAutoMerge(fn: (v: boolean) => void): void {
-    this.autoMergeHandler = fn;
+  setOnSellMode(fn: (v: boolean) => void): void {
+    this.sellModeHandler = fn;
   }
 
   flashMessage(msg: string): void {
@@ -121,9 +122,9 @@ export class Hud {
     const bottom = document.createElement('div');
     bottom.className = 'hud-bottom';
     bottom.innerHTML = `
-      <button class="hud-automerge" type="button">
-        <span class="hud-automerge-dot"></span>
-        <span class="hud-automerge-label">자동합성</span>
+      <button class="hud-sellmode" type="button">
+        <span class="hud-sellmode-icon">💰</span>
+        <span class="hud-sellmode-label">판매</span>
       </button>
       <button class="hud-summon" type="button">
         <span class="hud-summon-label">유닛 소환</span>
@@ -155,18 +156,18 @@ export class Hud {
       summonBtn: $('.hud-summon') as HTMLButtonElement,
       summonCost: $('.hud-summon-cost-num'),
       unitCount: $('.hud-summon-count'),
-      autoMergeBtn: $('.hud-automerge') as HTMLButtonElement,
+      sellModeBtn: $('.hud-sellmode') as HTMLButtonElement,
       toast,
       vignette,
     };
 
     this.elements.summonBtn.addEventListener('click', () => this.clickHandler?.());
-    this.elements.autoMergeBtn.addEventListener('click', () => {
-      this.autoMergeOn = !this.autoMergeOn;
-      this.elements?.autoMergeBtn.classList.toggle('on', this.autoMergeOn);
-      this.autoMergeHandler?.(this.autoMergeOn);
+    this.elements.sellModeBtn.addEventListener('click', () => {
+      this.sellModeOn = !this.sellModeOn;
+      this.elements?.sellModeBtn.classList.toggle('on', this.sellModeOn);
+      this.sellModeHandler?.(this.sellModeOn);
     });
-    this.elements.autoMergeBtn.classList.toggle('on', this.autoMergeOn);
+    this.elements.sellModeBtn.classList.toggle('on', this.sellModeOn);
 
     this.injectStyles();
   }
@@ -184,7 +185,7 @@ export class Hud {
     e.score.textContent = s.score.toLocaleString();
     const ratio = s.waveTotal > 0 ? s.waveProgress / s.waveTotal : 0;
     e.progressBar.style.width = `${Math.min(1, Math.max(0, ratio)) * 100}%`;
-    e.progressText.textContent = `${s.waveProgress}/${s.waveTotal}`;
+    e.progressText.textContent = `${s.waveRemainSec}초`;
     e.gold.textContent = s.gold.toLocaleString();
     e.tickets.textContent = `${s.tickets}/${s.ticketsCap}`;
     e.mobText.textContent = `${s.mobs}/${s.mobsCap}`;
@@ -199,8 +200,8 @@ export class Hud {
     e.summonCost.textContent = s.summonCost.toLocaleString();
     e.unitCount.textContent = `유닛 ${s.units}/${s.unitsMax}`;
     e.summonBtn.disabled = s.units >= s.unitsMax || s.gold < s.summonCost;
-    this.autoMergeOn = s.autoMerge;
-    e.autoMergeBtn.classList.toggle('on', s.autoMerge);
+    this.sellModeOn = s.sellMode;
+    e.sellModeBtn.classList.toggle('on', s.sellMode);
   }
 
   private injectStyles(): void {
@@ -403,8 +404,8 @@ export class Hud {
         gap: 0.8rem;
       }
 
-      /* 자동합성 = 작은 정사각 토글 칩 (px 고정 — rem 베이스 영향 차단) */
-      .hud-automerge {
+      /* 판매모드 = 작은 토글 칩 (px 고정) */
+      .hud-sellmode {
         flex: 0 0 auto;
         width: 60px;
         min-height: 48px;
@@ -412,33 +413,24 @@ export class Hud {
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.2rem;
-        padding: 0.4rem;
+        gap: 2px;
+        padding: 4px;
         background: var(--bg-panel);
-        border: 0.2rem solid var(--bg-elevated);
+        border: 2px solid var(--border);
         border-radius: var(--r-md);
         color: var(--ink-3);
         font-family: inherit;
         cursor: pointer;
         transition: all 0.15s ease;
       }
-      .hud-automerge.on {
-        background: rgba(91, 185, 91, 0.18);
-        border-color: var(--ok);
+      .hud-sellmode.on {
+        background: rgba(255, 77, 77, 0.18);
+        border-color: var(--danger);
         color: var(--ink-1);
       }
-      .hud-automerge-dot {
-        width: 0.8rem; height: 0.8rem;
-        border-radius: 50%;
-        background: var(--ink-3);
-        flex: 0 0 auto;
-      }
-      .hud-automerge.on .hud-automerge-dot {
-        background: var(--ok);
-        box-shadow: 0 0 0.6rem var(--ok);
-      }
-      .hud-automerge-label {
-        font-size: 1rem;
+      .hud-sellmode-icon { font-size: 16px; }
+      .hud-sellmode-label {
+        font-size: 11px;
         font-weight: 700;
         white-space: nowrap;
       }

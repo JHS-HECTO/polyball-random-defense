@@ -87,5 +87,7 @@
     "light": "dark",
     "dark": "light"
   },
-  "elementMultiplier": 1.5
+  "elementMultiplier": 1.5,
+  "sellRatio": 0.6,
+  "waveDurationMs": 30000
 }
