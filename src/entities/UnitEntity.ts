@@ -201,7 +201,18 @@ export class UnitEntity extends Phaser.GameObjects.Container {
 
   setSelected(v: boolean): void {
     this.setRangeVisible(v);
-    this.base.setScale(v ? 1.12 : 1);
+    this.base.setScale(v ? 1.15 : 1);
+    // 선택 하이라이트 링 (흰 글로우)
+    const gl = this.glowG;
+    if (v) {
+      gl.clear();
+      gl.fillStyle(0xffffff, 0.25);
+      gl.fillCircle(0, 0, 30);
+      gl.lineStyle(3, 0xffffff, 0.95);
+      gl.strokeCircle(0, 0, 28);
+    } else {
+      this.drawGlow();
+    }
   }
 
   playAttack(targetX: number, targetY: number): void {

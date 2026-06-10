@@ -1,27 +1,334 @@
 {
   "units": [
-    {"id": "common_fire", "name": "신입 타자", "grade": "common", "element": "fire", "atk": 8, "range": 115, "atkSpeed": 1.2, "projectileType": "baseball", "sprite": "units/common_fire.png"},
-    {"id": "common_water", "name": "연습생 타자", "grade": "common", "element": "water", "atk": 8, "range": 115, "atkSpeed": 1.2, "projectileType": "baseball", "sprite": "units/common_water.png"},
-    {"id": "common_wind", "name": "벤치 타자", "grade": "common", "element": "wind", "atk": 8, "range": 115, "atkSpeed": 1.2, "projectileType": "baseball", "sprite": "units/common_wind.png"},
-
-    {"id": "rare_earth", "name": "유망주", "grade": "rare", "element": "earth", "atk": 16, "range": 135, "atkSpeed": 1.05, "projectileType": "baseball", "sprite": "units/rare_earth.png"},
-    {"id": "rare_light", "name": "1군 타자", "grade": "rare", "element": "light", "atk": 16, "range": 135, "atkSpeed": 1.05, "projectileType": "baseball", "sprite": "units/rare_light.png"},
-    {"id": "rare_dark", "name": "교체 타자", "grade": "rare", "element": "dark", "atk": 16, "range": 135, "atkSpeed": 1.05, "projectileType": "baseball", "sprite": "units/rare_dark.png"},
-
-    {"id": "epic_fire", "name": "주전 타자", "grade": "epic", "element": "fire", "atk": 30, "range": 155, "atkSpeed": 0.9, "projectileType": "baseball", "sprite": "units/epic_fire.png"},
-    {"id": "epic_water", "name": "중심 타자", "grade": "epic", "element": "water", "atk": 30, "range": 155, "atkSpeed": 0.9, "projectileType": "baseball", "sprite": "units/epic_water.png"},
-    {"id": "epic_wind", "name": "클러치 타자", "grade": "epic", "element": "wind", "atk": 30, "range": 155, "atkSpeed": 0.9, "projectileType": "baseball", "sprite": "units/epic_wind.png"},
-
-    {"id": "legendary_earth", "name": "올스타", "grade": "legendary", "element": "earth", "atk": 55, "range": 175, "atkSpeed": 0.78, "projectileType": "baseball", "sprite": "units/legendary_earth.png"},
-    {"id": "legendary_light", "name": "골든글러브", "grade": "legendary", "element": "light", "atk": 55, "range": 175, "atkSpeed": 0.78, "projectileType": "baseball", "sprite": "units/legendary_light.png"},
-    {"id": "legendary_dark", "name": "홈런왕", "grade": "legendary", "element": "dark", "atk": 55, "range": 175, "atkSpeed": 0.78, "projectileType": "baseball", "sprite": "units/legendary_dark.png"},
-
-    {"id": "mythic_low_fire", "name": "MVP", "grade": "mythic_low", "element": "fire", "atk": 95, "range": 195, "atkSpeed": 0.66, "projectileType": "baseball", "sprite": "units/mythic_low_fire.png"},
-    {"id": "mythic_low_light", "name": "타격왕", "grade": "mythic_low", "element": "light", "atk": 95, "range": 195, "atkSpeed": 0.66, "projectileType": "baseball", "sprite": "units/mythic_low_light.png"},
-    {"id": "mythic_low_dark", "name": "트리플크라운", "grade": "mythic_low", "element": "dark", "atk": 95, "range": 195, "atkSpeed": 0.66, "projectileType": "baseball", "sprite": "units/mythic_low_dark.png"},
-
-    {"id": "mythic_fire", "name": "전설의 4번타자", "grade": "mythic", "element": "fire", "atk": 160, "range": 220, "atkSpeed": 0.55, "projectileType": "baseball", "sprite": "units/mythic_fire.png"},
-    {"id": "mythic_light", "name": "야구의 신", "grade": "mythic", "element": "light", "atk": 160, "range": 220, "atkSpeed": 0.55, "projectileType": "baseball", "sprite": "units/mythic_light.png"},
-    {"id": "mythic_dark", "name": "불멸의 타격기계", "grade": "mythic", "element": "dark", "atk": 160, "range": 220, "atkSpeed": 0.55, "projectileType": "baseball", "sprite": "units/mythic_dark.png"}
+    {
+      "id": "common_fire_1",
+      "name": "신입 타자",
+      "grade": "common",
+      "element": "fire",
+      "atk": 8,
+      "range": 115,
+      "atkSpeed": 1.2,
+      "projectileType": "baseball",
+      "sprite": "units/common_fire_1.png"
+    },
+    {
+      "id": "common_water_2",
+      "name": "연습생",
+      "grade": "common",
+      "element": "water",
+      "atk": 8,
+      "range": 115,
+      "atkSpeed": 1.2,
+      "projectileType": "baseball",
+      "sprite": "units/common_water_2.png"
+    },
+    {
+      "id": "common_wind_3",
+      "name": "벤치워머",
+      "grade": "common",
+      "element": "wind",
+      "atk": 8,
+      "range": 115,
+      "atkSpeed": 1.2,
+      "projectileType": "baseball",
+      "sprite": "units/common_wind_3.png"
+    },
+    {
+      "id": "common_earth_4",
+      "name": "대타 요원",
+      "grade": "common",
+      "element": "earth",
+      "atk": 8,
+      "range": 115,
+      "atkSpeed": 1.2,
+      "projectileType": "baseball",
+      "sprite": "units/common_earth_4.png"
+    },
+    {
+      "id": "common_light_5",
+      "name": "9번 타자",
+      "grade": "common",
+      "element": "light",
+      "atk": 8,
+      "range": 115,
+      "atkSpeed": 1.2,
+      "projectileType": "baseball",
+      "sprite": "units/common_light_5.png"
+    },
+    {
+      "id": "rare_fire_1",
+      "name": "유망주",
+      "grade": "rare",
+      "element": "fire",
+      "atk": 16,
+      "range": 135,
+      "atkSpeed": 1.05,
+      "projectileType": "baseball",
+      "sprite": "units/rare_fire_1.png"
+    },
+    {
+      "id": "rare_water_2",
+      "name": "1군 타자",
+      "grade": "rare",
+      "element": "water",
+      "atk": 16,
+      "range": 135,
+      "atkSpeed": 1.05,
+      "projectileType": "baseball",
+      "sprite": "units/rare_water_2.png"
+    },
+    {
+      "id": "rare_wind_3",
+      "name": "교체 타자",
+      "grade": "rare",
+      "element": "wind",
+      "atk": 16,
+      "range": 135,
+      "atkSpeed": 1.05,
+      "projectileType": "baseball",
+      "sprite": "units/rare_wind_3.png"
+    },
+    {
+      "id": "rare_earth_4",
+      "name": "7번 타자",
+      "grade": "rare",
+      "element": "earth",
+      "atk": 16,
+      "range": 135,
+      "atkSpeed": 1.05,
+      "projectileType": "baseball",
+      "sprite": "units/rare_earth_4.png"
+    },
+    {
+      "id": "rare_light_5",
+      "name": "리드오프",
+      "grade": "rare",
+      "element": "light",
+      "atk": 16,
+      "range": 135,
+      "atkSpeed": 1.05,
+      "projectileType": "baseball",
+      "sprite": "units/rare_light_5.png"
+    },
+    {
+      "id": "epic_fire_1",
+      "name": "주전 타자",
+      "grade": "epic",
+      "element": "fire",
+      "atk": 30,
+      "range": 155,
+      "atkSpeed": 0.9,
+      "projectileType": "baseball",
+      "sprite": "units/epic_fire_1.png"
+    },
+    {
+      "id": "epic_water_2",
+      "name": "중심 타자",
+      "grade": "epic",
+      "element": "water",
+      "atk": 30,
+      "range": 155,
+      "atkSpeed": 0.9,
+      "projectileType": "baseball",
+      "sprite": "units/epic_water_2.png"
+    },
+    {
+      "id": "epic_wind_3",
+      "name": "클러치 히터",
+      "grade": "epic",
+      "element": "wind",
+      "atk": 30,
+      "range": 155,
+      "atkSpeed": 0.9,
+      "projectileType": "baseball",
+      "sprite": "units/epic_wind_3.png"
+    },
+    {
+      "id": "epic_earth_4",
+      "name": "5번 타자",
+      "grade": "epic",
+      "element": "earth",
+      "atk": 30,
+      "range": 155,
+      "atkSpeed": 0.9,
+      "projectileType": "baseball",
+      "sprite": "units/epic_earth_4.png"
+    },
+    {
+      "id": "epic_light_5",
+      "name": "테이블세터",
+      "grade": "epic",
+      "element": "light",
+      "atk": 30,
+      "range": 155,
+      "atkSpeed": 0.9,
+      "projectileType": "baseball",
+      "sprite": "units/epic_light_5.png"
+    },
+    {
+      "id": "legendary_fire_1",
+      "name": "올스타",
+      "grade": "legendary",
+      "element": "fire",
+      "atk": 55,
+      "range": 175,
+      "atkSpeed": 0.78,
+      "projectileType": "baseball",
+      "sprite": "units/legendary_fire_1.png"
+    },
+    {
+      "id": "legendary_water_2",
+      "name": "골든글러브",
+      "grade": "legendary",
+      "element": "water",
+      "atk": 55,
+      "range": 175,
+      "atkSpeed": 0.78,
+      "projectileType": "baseball",
+      "sprite": "units/legendary_water_2.png"
+    },
+    {
+      "id": "legendary_wind_3",
+      "name": "홈런왕",
+      "grade": "legendary",
+      "element": "wind",
+      "atk": 55,
+      "range": 175,
+      "atkSpeed": 0.78,
+      "projectileType": "baseball",
+      "sprite": "units/legendary_wind_3.png"
+    },
+    {
+      "id": "legendary_earth_4",
+      "name": "4번 타자",
+      "grade": "legendary",
+      "element": "earth",
+      "atk": 55,
+      "range": 175,
+      "atkSpeed": 0.78,
+      "projectileType": "baseball",
+      "sprite": "units/legendary_earth_4.png"
+    },
+    {
+      "id": "legendary_light_5",
+      "name": "주장",
+      "grade": "legendary",
+      "element": "light",
+      "atk": 55,
+      "range": 175,
+      "atkSpeed": 0.78,
+      "projectileType": "baseball",
+      "sprite": "units/legendary_light_5.png"
+    },
+    {
+      "id": "mythic_low_fire_1",
+      "name": "MVP",
+      "grade": "mythic_low",
+      "element": "fire",
+      "atk": 95,
+      "range": 195,
+      "atkSpeed": 0.66,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_low_fire_1.png"
+    },
+    {
+      "id": "mythic_low_water_2",
+      "name": "타격왕",
+      "grade": "mythic_low",
+      "element": "water",
+      "atk": 95,
+      "range": 195,
+      "atkSpeed": 0.66,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_low_water_2.png"
+    },
+    {
+      "id": "mythic_low_wind_3",
+      "name": "트리플크라운",
+      "grade": "mythic_low",
+      "element": "wind",
+      "atk": 95,
+      "range": 195,
+      "atkSpeed": 0.66,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_low_wind_3.png"
+    },
+    {
+      "id": "mythic_low_earth_4",
+      "name": "사이클링히트",
+      "grade": "mythic_low",
+      "element": "earth",
+      "atk": 95,
+      "range": 195,
+      "atkSpeed": 0.66,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_low_earth_4.png"
+    },
+    {
+      "id": "mythic_low_light_5",
+      "name": "그랜드슬래머",
+      "grade": "mythic_low",
+      "element": "light",
+      "atk": 95,
+      "range": 195,
+      "atkSpeed": 0.66,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_low_light_5.png"
+    },
+    {
+      "id": "mythic_fire_1",
+      "name": "전설의 4번타자",
+      "grade": "mythic",
+      "element": "fire",
+      "atk": 160,
+      "range": 220,
+      "atkSpeed": 0.55,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_fire_1.png"
+    },
+    {
+      "id": "mythic_water_2",
+      "name": "야구의 신",
+      "grade": "mythic",
+      "element": "water",
+      "atk": 160,
+      "range": 220,
+      "atkSpeed": 0.55,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_water_2.png"
+    },
+    {
+      "id": "mythic_wind_3",
+      "name": "불멸의 타격기계",
+      "grade": "mythic",
+      "element": "wind",
+      "atk": 160,
+      "range": 220,
+      "atkSpeed": 0.55,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_wind_3.png"
+    },
+    {
+      "id": "mythic_earth_4",
+      "name": "백투백 킹",
+      "grade": "mythic",
+      "element": "earth",
+      "atk": 160,
+      "range": 220,
+      "atkSpeed": 0.55,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_earth_4.png"
+    },
+    {
+      "id": "mythic_light_5",
+      "name": "만루홈런왕",
+      "grade": "mythic",
+      "element": "light",
+      "atk": 160,
+      "range": 220,
+      "atkSpeed": 0.55,
+      "projectileType": "baseball",
+      "sprite": "units/mythic_light_5.png"
+    }
   ]
 }
