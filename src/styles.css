@@ -105,7 +105,14 @@ button {
   pointer-events: none;
   z-index: 10;
 }
-#hud-root * {
+/* HUD 컨테이너는 pointer 통과 (캔버스 드래그 안 막음). 인터랙티브 요소만 개별 auto. */
+.hud-summon,
+.hud-sellbar,
+.hud-sellbar-btn,
+.hud-ticket-dim,
+.hud-ticket-btn,
+.ovl,
+.ovl-btn {
   pointer-events: auto;
 }
 .hud-noevt {

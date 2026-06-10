@@ -253,7 +253,8 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   }
 
   sellRefund(): number {
-    return Math.round(this.summonPrice * registry.config.sellRatio);
+    // 등급별 판매가 (희소할수록 비쌈)
+    return registry.config.sellByGrade[this.def.grade];
   }
 
   private lighten(c: number, p: number): number {

@@ -121,5 +121,13 @@
   },
   "bossTimeLimitMs": 90000,
   "bossBaseHp": 2200,
-  "bossHpPerBoss": 1.7
+  "bossHpPerBoss": 1.7,
+  "sellByGrade": {
+    "common": 20,
+    "rare": 45,
+    "epic": 120,
+    "legendary": 350,
+    "mythic_low": 900,
+    "mythic": 2500
+  }
 }

@@ -63,6 +63,7 @@ export type GameConfig = {
   bossHpMultiplier: number;
   gameOverMobCount: number;
   sellRatio: number;
+  sellByGrade: Record<Grade, number>;
   waveDurationMs: number;
   bossTimeLimitMs: number;
   bossBaseHp: number;
