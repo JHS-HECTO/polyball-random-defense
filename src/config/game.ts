@@ -23,11 +23,11 @@ export const BASE_RADIUS = 44;
 // 순환 트랙 — 본거지를 감싸는 사각 링 (닫힌 루프). 적이 따라 돈다.
 // 시계방향 waypoint. 모서리 라운드는 시각만, 이동은 직선 보간.
 export const TRACK = {
-  left: 80,
-  right: GAME_WIDTH - 80,   // 460
-  top: 250,
-  bottom: 690,
-  corner: 40,               // 모서리 라운드 반경 (시각)
+  left: 70,
+  right: GAME_WIDTH - 70,   // 470
+  top: 210,                 // HUD 바로 아래까지 끌어올림
+  bottom: 810,              // 하단 독 바로 위까지 확장 → 세로로 크게
+  corner: 44,               // 모서리 라운드 반경 (시각)
 } as const;
 
 // waypoint 닫힌 루프 (시계방향, 좌상 시작)

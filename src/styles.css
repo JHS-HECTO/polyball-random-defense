@@ -75,10 +75,10 @@ button {
 
 #game-frame {
   position: relative;
-  /* 9:16 비율 엄수 — 높이는 화면과 폭유도 중 작은 값. 캔버스 letterbox 제거 → Phaser input 좌표 정확 */
-  aspect-ratio: 9 / 16;
-  height: min(100dvh, calc(100vw * 16 / 9));
-  max-width: 54rem;
+  /* 뷰포트 꽉 채움. Phaser ENVELOP가 540×960 디자인 비율 유지하며 빈 여백만 crop.
+     → letterbox(검은 띠) 제거, 게임이 화면 위아래로 꽉 차게 보임. */
+  width: 100vw;
+  height: 100dvh;
   background: var(--bg-frame);
   box-shadow: var(--shadow-2);
   overflow: hidden;
@@ -91,11 +91,11 @@ button {
   position: absolute;
   inset: 0;
   touch-action: none;
+  overflow: hidden;
 }
+/* Phaser(ENVELOP)가 canvas 크기/센터링(margin) 제어 — flex/100% 강제 금지(중복센터·왜곡 방지). */
 #game-canvas canvas {
   display: block;
-  width: 100% !important;
-  height: 100% !important;
   touch-action: none;
 }
 
