@@ -29,4 +29,6 @@ const config: Phaser.Types.Core.GameConfig = {
   scene: [BootScene, LobbyScene, GameScene, ResultScene],
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+// 디버그 노출 (개발 검증용)
+(window as unknown as { __game?: Phaser.Game }).__game = game;

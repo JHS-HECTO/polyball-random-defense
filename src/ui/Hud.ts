@@ -16,6 +16,8 @@ export type HudState = {
   unitsMax: number;
   mobs: number;
   mobsCap: number;
+  summonCost: number;
+  autoMerge: boolean;
 };
 
 export class Hud {
@@ -36,10 +38,15 @@ export class Hud {
     summonBtn: HTMLButtonElement;
     summonCost: HTMLSpanElement;
     unitCount: HTMLSpanElement;
+    autoMergeBtn: HTMLButtonElement;
+    toast: HTMLDivElement;
     vignette: HTMLDivElement;
   } | null = null;
 
   private clickHandler: (() => void) | null = null;
+  private autoMergeHandler: ((v: boolean) => void) | null = null;
+  private autoMergeOn = true;
+  private toastTimer: number | null = null;
 
   constructor(_scene: Phaser.Scene) {
     const root = document.getElementById('hud-root');
@@ -49,6 +56,21 @@ export class Hud {
 
   setOnSummon(fn: () => void): void {
     this.clickHandler = fn;
+  }
+
+  setOnAutoMerge(fn: (v: boolean) => void): void {
+    this.autoMergeHandler = fn;
+  }
+
+  flashMessage(msg: string): void {
+    if (!this.elements) return;
+    const t = this.elements.toast;
+    t.textContent = msg;
+    t.classList.add('show');
+    if (this.toastTimer !== null) window.clearTimeout(this.toastTimer);
+    this.toastTimer = window.setTimeout(() => {
+      t.classList.remove('show');
+    }, 1400);
   }
 
   mount(): void {
@@ -90,10 +112,19 @@ export class Hud {
     `;
     this.root.appendChild(top);
 
-    // 하단 패널 (소환 버튼)
+    // 토스트
+    const toast = document.createElement('div');
+    toast.className = 'hud-toast';
+    this.root.appendChild(toast);
+
+    // 하단 패널 (소환 버튼 + 자동합성 토글)
     const bottom = document.createElement('div');
     bottom.className = 'hud-bottom';
     bottom.innerHTML = `
+      <button class="hud-automerge" type="button">
+        <span class="hud-automerge-dot"></span>
+        <span class="hud-automerge-label">자동합성</span>
+      </button>
       <button class="hud-summon" type="button">
         <span class="hud-summon-label">유닛 소환</span>
         <span class="hud-summon-cost">⛁ <span class="hud-summon-cost-num"></span></span>
@@ -124,10 +155,18 @@ export class Hud {
       summonBtn: $('.hud-summon') as HTMLButtonElement,
       summonCost: $('.hud-summon-cost-num'),
       unitCount: $('.hud-summon-count'),
+      autoMergeBtn: $('.hud-automerge') as HTMLButtonElement,
+      toast,
       vignette,
     };
 
     this.elements.summonBtn.addEventListener('click', () => this.clickHandler?.());
+    this.elements.autoMergeBtn.addEventListener('click', () => {
+      this.autoMergeOn = !this.autoMergeOn;
+      this.elements?.autoMergeBtn.classList.toggle('on', this.autoMergeOn);
+      this.autoMergeHandler?.(this.autoMergeOn);
+    });
+    this.elements.autoMergeBtn.classList.toggle('on', this.autoMergeOn);
 
     this.injectStyles();
   }
@@ -157,9 +196,11 @@ export class Hud {
     e.mobBar.classList.toggle('danger', danger);
     e.vignette.classList.toggle('on', danger);
 
-    e.summonCost.textContent = '50'; // placeholder, 단계 3에서 동적
-    e.unitCount.textContent = `${s.units}/${s.unitsMax}`;
-    e.summonBtn.disabled = s.units >= s.unitsMax;
+    e.summonCost.textContent = s.summonCost.toLocaleString();
+    e.unitCount.textContent = `유닛 ${s.units}/${s.unitsMax}`;
+    e.summonBtn.disabled = s.units >= s.unitsMax || s.gold < s.summonCost;
+    this.autoMergeOn = s.autoMerge;
+    e.autoMergeBtn.classList.toggle('on', s.autoMerge);
   }
 
   private injectStyles(): void {
@@ -335,18 +376,56 @@ export class Hud {
       .hud-bottom {
         position: absolute;
         left: 0; right: 0; bottom: 0;
-        padding: 1.2rem 1.6rem 2rem;
+        padding: 1rem 1.4rem 1.6rem;
         background: linear-gradient(0deg, rgba(10, 13, 20, 0.95) 0%, rgba(10, 13, 20, 0.6) 80%, transparent 100%);
+        display: flex;
+        align-items: stretch;
+        gap: 0.8rem;
+      }
+
+      .hud-automerge {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.3rem;
+        padding: 0 1.2rem;
+        background: var(--bg-panel);
+        border: 0.2rem solid var(--bg-elevated);
+        border-radius: var(--r-md);
+        color: var(--ink-3);
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .hud-automerge.on {
+        background: rgba(91, 185, 91, 0.18);
+        border-color: var(--ok);
+        color: var(--ink-1);
+      }
+      .hud-automerge-dot {
+        width: 1rem; height: 1rem;
+        border-radius: 50%;
+        background: var(--ink-3);
+      }
+      .hud-automerge.on .hud-automerge-dot {
+        background: var(--ok);
+        box-shadow: 0 0 0.6rem var(--ok);
+      }
+      .hud-automerge-label {
+        font-size: 1rem;
+        font-weight: 700;
+        white-space: nowrap;
       }
 
       .hud-summon {
+        flex: 1;
         display: grid;
         grid-template-areas:
           'label cost'
           'count count';
         gap: 0.2rem 1rem;
-        width: 100%;
-        padding: 1.2rem 1.6rem;
+        padding: 1rem 1.4rem;
         background: linear-gradient(180deg, #ffd35e 0%, #ffb347 100%);
         color: #2c1d12;
         border: 0.3rem solid #d96a2c;
@@ -389,6 +468,29 @@ export class Hud {
         font-weight: 600;
         color: #5a3a0a;
         text-align: center;
+      }
+
+      .hud-toast {
+        position: absolute;
+        top: 32%;
+        left: 50%;
+        transform: translate(-50%, -10px);
+        padding: 0.8rem 1.8rem;
+        background: rgba(10, 13, 20, 0.9);
+        border: 0.2rem solid var(--accent);
+        border-radius: var(--r-pill);
+        color: var(--ink-1);
+        font-size: 1.6rem;
+        font-weight: 800;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 5;
+      }
+      .hud-toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
       }
     `;
     document.head.appendChild(style);
