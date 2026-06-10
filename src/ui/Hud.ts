@@ -237,25 +237,29 @@ export class Hud {
     e.wave.textContent = String(s.wave);
     e.score.textContent = s.score.toLocaleString();
 
-    // ★ 메인 바 = 필드 몹 게이지 (100 차면 게임오버)
-    const mobRatio = s.mobsCap > 0 ? s.mobs / s.mobsCap : 0;
-    e.mobBar.style.width = `${Math.min(1, mobRatio) * 100}%`;
-    e.mobText.textContent = `${s.mobs} / ${s.mobsCap}`;
-    // 비율별 색 (초록→노랑→빨강)
-    let barColor: string;
-    if (mobRatio < 0.5) barColor = 'linear-gradient(90deg, #3DD68C 0%, #5be0a0 100%)';
-    else if (mobRatio < 0.8) barColor = 'linear-gradient(90deg, #FFB020 0%, #ffc94d 100%)';
-    else barColor = 'linear-gradient(90deg, #FF4D4D 0%, #ff8080 100%)';
-    e.mobBar.style.background = barColor;
-    const danger = mobRatio >= 0.8;
-    e.mobBar.classList.toggle('danger', danger);
-    e.vignette.classList.toggle('on', danger);
-
-    // 타이머 칩: 보스전이면 보스 남은시간(빨강), 일반이면 웨이브 시간
     if (s.bossActive) {
-      e.timerText.textContent = `보스 ${s.waveRemainSec}s`;
+      // 보스전: 메인 바 = 보스 HP(처치 진행), 타이머 칩 = 처치 제한시간(게임오버)
+      const hpR = Math.max(0, Math.min(1, s.bossHpRatio));
+      e.mobBar.style.width = `${hpR * 100}%`;
+      e.mobBar.style.background = 'linear-gradient(90deg, #B05CFF 0%, #d4a5ff 100%)';
+      e.mobBar.classList.remove('danger');
+      e.mobText.textContent = `BOSS ${Math.round(hpR * 100)}%`;
+      e.vignette.classList.toggle('on', s.waveRemainSec <= 15); // 시간 임박시 경고
+      e.timerText.textContent = `⏳ ${s.waveRemainSec}s`;
       (e.timerText.parentElement as HTMLElement).classList.add('boss');
     } else {
+      // 일반: 메인 바 = 몹 게이지(100 차면 게임오버), 타이머 = 웨이브 시간
+      const mobRatio = s.mobsCap > 0 ? s.mobs / s.mobsCap : 0;
+      e.mobBar.style.width = `${Math.min(1, mobRatio) * 100}%`;
+      e.mobText.textContent = `${s.mobs} / ${s.mobsCap}`;
+      let barColor: string;
+      if (mobRatio < 0.5) barColor = 'linear-gradient(90deg, #3DD68C 0%, #5be0a0 100%)';
+      else if (mobRatio < 0.8) barColor = 'linear-gradient(90deg, #FFB020 0%, #ffc94d 100%)';
+      else barColor = 'linear-gradient(90deg, #FF4D4D 0%, #ff8080 100%)';
+      e.mobBar.style.background = barColor;
+      const danger = mobRatio >= 0.8;
+      e.mobBar.classList.toggle('danger', danger);
+      e.vignette.classList.toggle('on', danger);
       e.timerText.textContent = `${s.waveRemainSec}s`;
       (e.timerText.parentElement as HTMLElement).classList.remove('boss');
     }
