@@ -313,7 +313,7 @@ export class GameScene extends Phaser.Scene {
   // ─── 입력 (드래그/탭/판매) ───────────────────────────────
 
   private attachInput(): void {
-    this.input.dragDistanceThreshold = 4;
+    this.input.dragDistanceThreshold = 12; // 모바일 탭 흔들림 허용 (이하=탭/선택, 초과=드래그)
     this.input.topOnly = true; // 겹친 유닛 중 최상단 1개만 (정확한 선택)
 
     // 유닛 누름 = 즉시 선택(하이라이트+판매바). threshold 무관 항상 발생.

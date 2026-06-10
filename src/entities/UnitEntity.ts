@@ -150,11 +150,13 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.add(this.levelLabel);
     this.updateLevelLabel();
 
-    // hit 영역 = 유닛 시각 크기 (겹침 방지, 정확한 선택). 원형.
-    this.setSize(48, 48);
+    // hit 영역 = 유닛 몸통 사각 (모바일 터치/드래그 쉽게 크게). 등급 크기 반영.
+    const hw = 30 * this.gradeScale;
+    const hh = 56 * this.gradeScale;
+    this.setSize(hw, hh);
     this.setInteractive({
-      hitArea: new Phaser.Geom.Circle(0, -4, 26),
-      hitAreaCallback: Phaser.Geom.Circle.Contains,
+      hitArea: new Phaser.Geom.Rectangle(-hw / 2, -hh + 16, hw, hh),
+      hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       draggable: true,
       useHandCursor: true,
     });
@@ -299,11 +301,12 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     // 선택 하이라이트 링 (흰 글로우)
     const gl = this.glowG;
     if (v) {
+      // 발밑 링만 (스프라이트 반투명 잔여가 흰 박스로 비치는 것 방지)
       gl.clear();
-      gl.fillStyle(0xffffff, 0.25);
-      gl.fillCircle(0, 0, 30);
-      gl.lineStyle(3, 0xffffff, 0.95);
-      gl.strokeCircle(0, 0, 28);
+      gl.lineStyle(3, 0xffe08a, 0.95);
+      gl.strokeEllipse(0, 18, 46 * this.gradeScale, 20 * this.gradeScale);
+      gl.lineStyle(6, 0xffe08a, 0.25);
+      gl.strokeEllipse(0, 18, 46 * this.gradeScale, 20 * this.gradeScale);
     } else {
       this.drawGlow();
     }
