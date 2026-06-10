@@ -281,16 +281,20 @@ export class Hud {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        box-shadow: inset 0 0 0 8rem rgba(226, 85, 85, 0);
-        transition: box-shadow 0.3s ease;
+        opacity: 0;
+        /* 화면 전체 빨강 (중앙도 채움) — 가장자리만 약간 더 진하게 */
+        background: radial-gradient(ellipse at center,
+          rgba(226, 85, 85, 0.22) 0%,
+          rgba(226, 85, 85, 0.5) 100%);
+        transition: opacity 0.3s ease;
       }
       .hud-vignette.on {
-        box-shadow: inset 0 0 0 8rem rgba(226, 85, 85, 0.25);
+        opacity: 1;
         animation: hud-vignette-pulse 1s ease-in-out infinite;
       }
       @keyframes hud-vignette-pulse {
-        0%, 100% { box-shadow: inset 0 0 0 8rem rgba(226, 85, 85, 0.2); }
-        50% { box-shadow: inset 0 0 0 8rem rgba(226, 85, 85, 0.4); }
+        0%, 100% { opacity: 0.7; }
+        50% { opacity: 1; }
       }
 
       .hud-top {
