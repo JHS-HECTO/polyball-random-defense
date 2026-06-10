@@ -157,7 +157,12 @@ export class GameScene extends Phaser.Scene {
   // ─── 그리기 ───────────────────────────────
 
   private drawBackground(): void {
-    // 캔버스 전체 타일 (가장자리 dark 방지)
+    // 생성된 필드 이미지 있으면 캔버스 전체에 깔기, 없으면 절차적 타일
+    if (this.textures.exists('bg-field')) {
+      const img = this.add.image(GAME_WIDTH / 2, GAME_HEIGHT / 2, 'bg-field').setDepth(0);
+      img.setDisplaySize(GAME_WIDTH, GAME_HEIGHT);
+      return;
+    }
     const size = 64;
     for (let y = 0; y < GAME_HEIGHT; y += size) {
       for (let x = 0; x < GAME_WIDTH; x += size) {

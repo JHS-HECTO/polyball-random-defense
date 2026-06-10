@@ -62,6 +62,16 @@ export class BootScene extends Phaser.Scene {
     for (const en of registry.enemies) {
       if (!this.textures.exists(en.id)) { this.load.image(en.id, `data/${en.sprite}`); queued += 1; }
     }
+    // 배경/이펙트 (있으면 사용, 없으면 절차적 폴백)
+    const extra: Array<[string, string]> = [
+      ['bg-field', 'data/bg/field.png'],
+      ['bg-track', 'data/bg/track.png'],
+      ['fx-baseball', 'data/fx/baseball.png'],
+      ['fx-hit', 'data/fx/hit.png'],
+    ];
+    for (const [key, path] of extra) {
+      if (!this.textures.exists(key)) { this.load.image(key, path); queued += 1; }
+    }
     const goNext = (): void => {
       this.game.scene.start('Lobby');
       this.scene.setVisible(false);
