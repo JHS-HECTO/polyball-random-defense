@@ -1,12 +1,21 @@
 {
-  "summonCost": { "base": 50, "growth": 1.0, "growthFlat": 0 },
+  "summonCost": {
+    "base": 50,
+    "growth": 1.0,
+    "growthFlat": 0
+  },
   "summonCostFixed": 50,
   "rerollCost": 30,
   "maxUnits": 18,
   "startGold": 200,
   "goldPerKill": {
-    "common": 1, "rare": 1, "epic": 1, "legendary": 1,
-    "mythic_low": 1, "mythic": 1, "boss": 1
+    "common": 1,
+    "rare": 1,
+    "epic": 1,
+    "legendary": 1,
+    "mythic_low": 1,
+    "mythic": 1,
+    "boss": 1
   },
   "goldPerKillFlat": 1,
   "goldPerWaveClear": 30,
@@ -50,8 +59,16 @@
     "mythic_low": 780,
     "mythic": 900
   },
-  "mobHpByWave": { "base": 22, "perWaveMult": 1.16, "bossMult": 14 },
-  "mobSpeed": { "base": 38, "perWaveAdd": 1.4, "berserkMult": 1.6 },
+  "mobHpByWave": {
+    "base": 22,
+    "perWaveMult": 1.16,
+    "bossMult": 14
+  },
+  "mobSpeed": {
+    "base": 38,
+    "perWaveAdd": 1.4,
+    "berserkMult": 1.6
+  },
   "mobsPerWave": 100,
   "bossEveryNWaves": 5,
   "berserkEveryNWaves": 10,
@@ -100,5 +117,8 @@
     "legendary": "#B05CFF",
     "mythic_low": "#FFB020",
     "mythic": "#FF4D8D"
-  }
+  },
+  "bossTimeLimitMs": 90000,
+  "bossBaseHp": 2200,
+  "bossHpPerBoss": 1.7
 }

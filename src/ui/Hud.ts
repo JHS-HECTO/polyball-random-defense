@@ -19,6 +19,8 @@ export type HudState = {
   summonCost: number;
   sellMode: boolean;
   waveRemainSec: number;
+  bossActive: boolean;
+  bossHpRatio: number;
 };
 
 export class Hud {
@@ -183,9 +185,19 @@ export class Hud {
     e.nick.textContent = s.nickname;
     e.wave.textContent = String(s.wave);
     e.score.textContent = s.score.toLocaleString();
-    const ratio = s.waveTotal > 0 ? s.waveProgress / s.waveTotal : 0;
-    e.progressBar.style.width = `${Math.min(1, Math.max(0, ratio)) * 100}%`;
-    e.progressText.textContent = `${s.waveRemainSec}초`;
+    if (s.bossActive) {
+      // 보스전: 진행바 = 보스 HP, 텍스트 = 남은시간(빨강)
+      e.progressBar.style.width = `${Math.min(1, Math.max(0, s.bossHpRatio)) * 100}%`;
+      e.progressBar.style.background = 'linear-gradient(90deg, #FF4D4D 0%, #ff8c8c 100%)';
+      e.progressText.textContent = `보스 ${s.waveRemainSec}초`;
+      e.progressText.style.color = '#FF4D4D';
+    } else {
+      const ratio = s.waveTotal > 0 ? s.waveProgress / s.waveTotal : 0;
+      e.progressBar.style.width = `${Math.min(1, Math.max(0, ratio)) * 100}%`;
+      e.progressBar.style.background = 'linear-gradient(90deg, var(--accent) 0%, var(--accent-strong) 100%)';
+      e.progressText.textContent = `${s.waveRemainSec}초`;
+      e.progressText.style.color = 'var(--ink-2)';
+    }
     e.gold.textContent = s.gold.toLocaleString();
     e.tickets.textContent = `${s.tickets}/${s.ticketsCap}`;
     e.mobText.textContent = `${s.mobs}/${s.mobsCap}`;

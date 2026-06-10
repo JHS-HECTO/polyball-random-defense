@@ -44,6 +44,11 @@ export class GameScene extends Phaser.Scene {
   private spawnInterval = 1000;
   private isGameOver = false;
 
+  // 보스전
+  private bossActive = false;
+  private bossTimeLeft = 0;
+  private bossRef: EnemyEntity | null = null;
+
   // 드래그/선택
   private draggingUnit: UnitEntity | null = null;
   private dragMoved = false;
@@ -123,22 +128,28 @@ export class GameScene extends Phaser.Scene {
 
     this.projectiles.update(delta);
 
-    // 웨이브 타이머 (30초 고정)
-    this.waveTimeLeft -= delta;
-    if (!this.isGameOver) {
+    if (this.bossActive) {
+      // 보스전: 제한시간 내 보스 처치 못하면 게임오버
+      this.bossTimeLeft -= delta;
+      if (this.bossTimeLeft <= 0) {
+        this.gameOver('boss_timeout');
+      }
+    } else {
+      // 일반 웨이브: 30초 + 100마리 균등 스폰
+      this.waveTimeLeft -= delta;
       this.spawnTimer -= delta;
       if (this.spawnTimer <= 0) {
         this.spawnEnemy();
         this.spawnTimer = this.spawnInterval;
       }
-    }
-    if (this.waveTimeLeft <= 0) {
-      this.nextWave();
+      if (this.waveTimeLeft <= 0) {
+        this.nextWave();
+      }
     }
 
-    // 게임오버 (생존 몹 100)
+    // 게임오버 (생존 몹 100) — 보스전/일반 공통
     if (this.aliveEnemyCount() >= registry.config.gameOverMobCount) {
-      this.gameOver();
+      this.gameOver('mob_overflow');
     }
 
     // 선택 sell 버튼 위치 추적
@@ -500,6 +511,17 @@ export class GameScene extends Phaser.Scene {
     this.state.addScore(e.isBoss ? 500 : 25);
     this.spawnCoin(e.x, e.y);
     e.playDeath(() => {});
+    // 보스 처치 → 보스전 종료 → 다음 웨이브
+    if (e.isBoss && this.bossActive && e === this.bossRef) {
+      this.bossActive = false;
+      this.bossRef = null;
+      this.state.earn(50 + this.state.wave * 5);
+      this.state.addScore(1000);
+      this.hud.flashMessage('보스 처치! 클리어');
+      this.time.delayedCall(900, () => {
+        if (!this.isGameOver) this.startWave(this.state.wave + 1);
+      });
+    }
   }
 
   private spawnCoin(x: number, y: number): void {
@@ -522,13 +544,24 @@ export class GameScene extends Phaser.Scene {
   private startWave(wave: number): void {
     this.state.wave = wave;
     const cfg = registry.config;
-    this.waveTimeLeft = cfg.waveDurationMs;
-    this.state.waveTotal = Math.round(cfg.waveDurationMs / 1000);
     const isBoss = wave % cfg.bossEveryNWaves === 0;
-    // 웨이브당 100마리를 30초에 균등 스폰
-    this.spawnInterval = cfg.waveDurationMs / cfg.mobsPerWave; // 300ms
-    this.spawnTimer = 200;
-    this.hud.flashMessage(isBoss ? `보스 웨이브 ${wave}!` : `웨이브 ${wave}`);
+
+    if (isBoss) {
+      // 보스전 진입 — 보스 1마리, 제한시간 카운트다운
+      this.bossActive = true;
+      this.bossTimeLeft = cfg.bossTimeLimitMs;
+      this.waveTimeLeft = cfg.bossTimeLimitMs;
+      this.state.waveTotal = Math.round(cfg.bossTimeLimitMs / 1000);
+      this.spawnBoss(wave);
+      this.hud.flashMessage(`보스 등장! ${Math.round(cfg.bossTimeLimitMs / 1000)}초 안에 처치`);
+    } else {
+      this.bossActive = false;
+      this.waveTimeLeft = cfg.waveDurationMs;
+      this.state.waveTotal = Math.round(cfg.waveDurationMs / 1000);
+      this.spawnInterval = cfg.waveDurationMs / cfg.mobsPerWave; // 300ms
+      this.spawnTimer = 200;
+      this.hud.flashMessage(`웨이브 ${wave}`);
+    }
   }
 
   private nextWave(): void {
@@ -537,23 +570,27 @@ export class GameScene extends Phaser.Scene {
     this.startWave(this.state.wave + 1);
   }
 
+  private spawnBoss(wave: number): void {
+    const cfg = registry.config;
+    const bossIndex = Math.floor(wave / cfg.bossEveryNWaves); // 1,2,3...
+    const bosses = registry.enemies.filter((e) => e.isBoss);
+    const def = bosses[(bossIndex - 1) % bosses.length] ?? bosses[0]!;
+    const hp = Math.round(cfg.bossBaseHp * Math.pow(cfg.bossHpPerBoss, bossIndex - 1));
+    const speed = cfg.mobSpeed.base * 0.7; // 보스는 느림
+    const start = this.track.getPoint(0);
+    const e = new EnemyEntity(this, start.x, start.y, def, hp, speed, 0);
+    this.bossRef = e;
+    this.enemies.push(e);
+  }
+
   private spawnEnemy(): void {
     const cfg = registry.config;
     const wave = this.state.wave;
-    const isBossWave = wave % cfg.bossEveryNWaves === 0;
     const isBerserk = wave % cfg.berserkEveryNWaves === 0;
 
-    let def;
-    let hp;
-    if (isBossWave && this.enemies.filter((e) => e.isBoss && e.alive).length === 0 && Math.random() < 0.3) {
-      const bosses = registry.enemies.filter((e) => e.isBoss);
-      def = bosses[Math.floor(Math.random() * bosses.length)]!;
-      hp = Math.round(def.hp * Math.pow(1.15, Math.floor(wave / cfg.bossEveryNWaves) - 1));
-    } else {
-      const mobs = registry.enemies.filter((e) => !e.isBoss);
-      def = mobs[Math.floor(Math.random() * mobs.length)]!;
-      hp = Math.round(cfg.mobHpByWave.base * Math.pow(cfg.mobHpByWave.perWaveMult, wave - 1));
-    }
+    const mobs = registry.enemies.filter((e) => !e.isBoss);
+    const def = mobs[Math.floor(Math.random() * mobs.length)]!;
+    const hp = Math.round(cfg.mobHpByWave.base * Math.pow(cfg.mobHpByWave.perWaveMult, wave - 1));
     let speed = cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1);
     if (isBerserk) speed *= cfg.mobSpeed.berserkMult;
 
@@ -568,19 +605,24 @@ export class GameScene extends Phaser.Scene {
     return n;
   }
 
-  private gameOver(): void {
+  private gameOver(reason: 'mob_overflow' | 'boss_timeout'): void {
     if (this.isGameOver) return;
     this.isGameOver = true;
     this.deselect();
     this.cameras.main.shake(300, 0.01);
-    this.time.delayedCall(600, () => {
-      this.scene.start('Result', { score: this.state.score, wave: this.state.wave });
+    const msg = reason === 'boss_timeout' ? '보스 처치 실패!' : '몹이 넘쳤다!';
+    this.hud.flashMessage(msg);
+    this.time.delayedCall(700, () => {
+      this.scene.start('Result', { score: this.state.score, wave: this.state.wave, reason });
     });
   }
 
   private publishHud(): void {
-    const elapsed = registry.config.waveDurationMs - this.waveTimeLeft;
-    const remainSec = Math.max(0, Math.ceil(this.waveTimeLeft / 1000));
+    const cfg = registry.config;
+    const totalMs = this.bossActive ? cfg.bossTimeLimitMs : cfg.waveDurationMs;
+    const left = this.bossActive ? this.bossTimeLeft : this.waveTimeLeft;
+    const remainSec = Math.max(0, Math.ceil(left / 1000));
+    const elapsed = totalMs - left;
     this.hud.update({
       nickname: '게스트',
       wave: this.state.wave,
@@ -597,6 +639,8 @@ export class GameScene extends Phaser.Scene {
       mobsCap: registry.config.gameOverMobCount,
       summonCost: this.state.summonCost,
       sellMode: this.sellMode,
+      bossActive: this.bossActive,
+      bossHpRatio: this.bossRef && this.bossRef.alive ? Math.max(0, this.bossRef.hp / this.bossRef.hpMax) : 0,
     });
     void GAME_WIDTH;
     void GAME_HEIGHT;

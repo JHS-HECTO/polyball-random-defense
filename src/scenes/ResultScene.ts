@@ -9,15 +9,23 @@ export class ResultScene extends Phaser.Scene {
     super({ key: 'Result' });
   }
 
-  create(data: { score?: number; wave?: number } = {}): void {
-    this.cameras.main.setBackgroundColor('#0e131c');
+  create(data: { score?: number; wave?: number; reason?: string } = {}): void {
+    this.cameras.main.setBackgroundColor('#0e1116');
 
     this.add
-      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.26, '게임 오버', {
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.22, '게임 오버', {
         fontFamily: 'Pretendard, system-ui, sans-serif',
         fontSize: '54px',
-        color: '#e25555',
+        color: '#FF4D4D',
         fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
+    const reasonText = data.reason === 'boss_timeout' ? '보스를 시간 내에 처치하지 못했다' : '몹이 100마리를 넘었다';
+    this.add
+      .text(GAME_WIDTH / 2, GAME_HEIGHT * 0.3, reasonText, {
+        fontFamily: 'Pretendard, system-ui, sans-serif',
+        fontSize: '18px',
+        color: '#9aa5b1',
       })
       .setOrigin(0.5);
 

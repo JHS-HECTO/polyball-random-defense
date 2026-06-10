@@ -64,6 +64,9 @@ export type GameConfig = {
   gameOverMobCount: number;
   sellRatio: number;
   waveDurationMs: number;
+  bossTimeLimitMs: number;
+  bossBaseHp: number;
+  bossHpPerBoss: number;
   gradeLabels: Record<Grade, string>;
   gradeColors: Record<Grade, string>;
   anim: {
