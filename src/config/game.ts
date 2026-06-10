@@ -38,6 +38,15 @@ export const TRACK_WAYPOINTS: ReadonlyArray<{ x: number; y: number }> = [
   { x: TRACK.left, y: TRACK.bottom },
 ];
 
+// 유닛 배치 가능 영역 = 트랙 안쪽 사각 (길/트랙엔 못 놓음).
+// 트랙 중심선 + 폭절반(22) + 유닛반경(26) 안쪽.
+export const PLACE_AREA = {
+  left: TRACK.left + 48,    // 128
+  right: TRACK.right - 48,  // 412
+  top: TRACK.top + 48,      // 298
+  bottom: TRACK.bottom - 48, // 642
+} as const;
+
 // 색 — 인게임 캔버스용 hex
 export const COLORS = {
   bgGrass: 0x2a3a2e,

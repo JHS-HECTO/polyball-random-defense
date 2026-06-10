@@ -6,6 +6,7 @@ import {
   FIELD_CENTER_Y,
   GAME_HEIGHT,
   GAME_WIDTH,
+  PLACE_AREA,
   TRACK,
   TRACK_WAYPOINTS,
 } from 'config/game';
@@ -97,13 +98,13 @@ export class GameScene extends Phaser.Scene {
     // 유닛 idle + 전투
     for (const u of this.units) {
       if (u === this.draggingUnit) continue;
-      u.tickIdle(time);
+      u.tickIdle(time, delta);
       u.cooldownLeft -= delta;
       if (u.cooldownLeft <= 0) {
         const target = this.pickTarget(u);
         if (target) {
           this.unitAttack(u, target);
-          u.cooldownLeft = u.def.atkSpeed * 1000;
+          u.cooldownLeft = u.atkSpeed * 1000;
         }
       }
     }
@@ -164,6 +165,21 @@ export class GameScene extends Phaser.Scene {
     g.setDepth(2);
     g.lineStyle(3, COLORS.fieldBorder, 0.8);
     g.strokeRoundedRect(FIELD.left, FIELD.top, FIELD.right - FIELD.left, FIELD.bottom - FIELD.top, 14);
+    // 배치영역 (트랙 안쪽) 가이드 — 유닛은 여기만 배치
+    const pa = this.add.graphics();
+    pa.setDepth(6);
+    pa.fillStyle(0x3dd68c, 0.04);
+    pa.fillRoundedRect(PLACE_AREA.left - 10, PLACE_AREA.top - 10, PLACE_AREA.right - PLACE_AREA.left + 20, PLACE_AREA.bottom - PLACE_AREA.top + 20, 12);
+    pa.lineStyle(1.5, 0x3dd68c, 0.25);
+    pa.strokeRoundedRect(PLACE_AREA.left - 10, PLACE_AREA.top - 10, PLACE_AREA.right - PLACE_AREA.left + 20, PLACE_AREA.bottom - PLACE_AREA.top + 20, 12);
+    const t = this.add.text(FIELD_CENTER_X, PLACE_AREA.top - 22, '배치 구역', {
+      fontFamily: 'Pretendard, system-ui, sans-serif',
+      fontSize: '11px',
+      color: '#3dd68c',
+    });
+    t.setOrigin(0.5);
+    t.setDepth(6);
+    t.setAlpha(0.5);
   }
 
   private buildTrack(): void {
@@ -246,19 +262,23 @@ export class GameScene extends Phaser.Scene {
     this.publishHud();
   }
 
-  // 중앙 근처 겹치지 않는 자리 탐색 (나선형)
+  // 배치영역(트랙 안쪽) 내 겹치지 않는 자리 (나선형)
   private findHoldingSpot(): { x: number; y: number } {
     const cx = FIELD_CENTER_X;
     const cy = FIELD_CENTER_Y;
-    for (let r = 0; r < 200; r += 24) {
+    for (let r = 0; r < 200; r += 22) {
       for (let a = 0; a < Math.PI * 2; a += Math.PI / 6) {
         const x = cx + Math.cos(a) * r;
         const y = cy + Math.sin(a) * r;
-        if (x < FIELD.left + 30 || x > FIELD.right - 30 || y < FIELD.top + 30 || y > FIELD.bottom - 30) continue;
+        if (!this.inPlaceArea(x, y)) continue;
         if (!this.overlapsUnit(x, y, null)) return { x, y };
       }
     }
     return { x: cx, y: cy };
+  }
+
+  private inPlaceArea(x: number, y: number): boolean {
+    return x >= PLACE_AREA.left && x <= PLACE_AREA.right && y >= PLACE_AREA.top && y <= PLACE_AREA.bottom;
   }
 
   private overlapsUnit(x: number, y: number, except: UnitEntity | null): boolean {
@@ -271,10 +291,11 @@ export class GameScene extends Phaser.Scene {
     return false;
   }
 
+  // 배치영역(트랙 안쪽 사각)으로 clamp — 길/트랙 진입 차단
   private clampToField(x: number, y: number): { x: number; y: number } {
     return {
-      x: Phaser.Math.Clamp(x, FIELD.left + 26, FIELD.right - 26),
-      y: Phaser.Math.Clamp(y, FIELD.top + 26, FIELD.bottom - 26),
+      x: Phaser.Math.Clamp(x, PLACE_AREA.left, PLACE_AREA.right),
+      y: Phaser.Math.Clamp(y, PLACE_AREA.top, PLACE_AREA.bottom),
     };
   }
 
@@ -405,7 +426,7 @@ export class GameScene extends Phaser.Scene {
   // ─── 전투 ───────────────────────────────
 
   private pickTarget(u: UnitEntity): EnemyEntity | null {
-    const r2 = u.def.range * u.def.range;
+    const r2 = u.range * u.range;
     let best: EnemyEntity | null = null;
     let bestD = Infinity;
     for (const e of this.enemies) {
@@ -424,7 +445,7 @@ export class GameScene extends Phaser.Scene {
   private unitAttack(u: UnitEntity, target: EnemyEntity): void {
     u.playAttack(target.x, target.y);
     const mult = registry.elementMultiplier(u.def.element, target.def.element);
-    const dmg = Math.round(u.def.atk * mult);
+    const dmg = Math.round(u.atk * mult);
     const eid = target.eid;
     this.projectiles.fire({
       x: u.x,
@@ -436,6 +457,7 @@ export class GameScene extends Phaser.Scene {
       },
       damage: dmg,
       color: GRADE_PROJ_COLOR[u.def.grade] ?? 0xffffff,
+      speed: u.projSpeed,
       onHit: (d) => this.damageEnemy(eid, d, mult > 1),
     });
   }
@@ -473,9 +495,8 @@ export class GameScene extends Phaser.Scene {
   private killEnemy(e: EnemyEntity): void {
     const idx = this.enemies.indexOf(e);
     if (idx >= 0) this.enemies.splice(idx, 1);
-    const gpk = registry.config.goldPerKill;
-    const gold = e.isBoss ? gpk.boss : (gpk[e.def.element] ?? 5);
-    this.state.earn(gold ?? 5);
+    // 몹 하나 처치 = 1원 (config.goldPerKillFlat)
+    this.state.earn(registry.config.goldPerKillFlat);
     this.state.addScore(e.isBoss ? 500 : 25);
     this.spawnCoin(e.x, e.y);
     e.playDeath(() => {});
@@ -504,11 +525,9 @@ export class GameScene extends Phaser.Scene {
     this.waveTimeLeft = cfg.waveDurationMs;
     this.state.waveTotal = Math.round(cfg.waveDurationMs / 1000);
     const isBoss = wave % cfg.bossEveryNWaves === 0;
-    this.spawnInterval = Math.max(
-      cfg.mobSpawnRate.minInterval,
-      1100 * Math.pow(cfg.mobSpawnRate.perWaveMult, wave - 1),
-    );
-    this.spawnTimer = 300;
+    // 웨이브당 100마리를 30초에 균등 스폰
+    this.spawnInterval = cfg.waveDurationMs / cfg.mobsPerWave; // 300ms
+    this.spawnTimer = 200;
     this.hud.flashMessage(isBoss ? `보스 웨이브 ${wave}!` : `웨이브 ${wave}`);
   }
 

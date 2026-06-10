@@ -1,32 +1,25 @@
 import Phaser from 'phaser';
 import { registry, type Grade, type Unit } from 'systems/registry';
 
-// 유닛 — placeholder: 등급컬러 라운드 사각 + 속성/등급 라벨. 자유 배치 + 자동 공격.
-// 합성 없음. 소환된 등급 그대로.
+// 유닛 — 야구 배트 든 캐릭터 placeholder (등급컬러 실루엣 + 라벨).
+// 스탯(공격/사거리/공속)은 config 등급값 사용. 합성 없음.
 
 const GRADE_COLOR: Record<Grade, number> = {
   common: 0x9aa5b1,
   rare: 0x4da3ff,
-  epic: 0xb05cff,
-  legendary: 0xffb020,
-  hidden: 0xff4d8d,
+  epic: 0x3dd68c,
+  legendary: 0xb05cff,
+  mythic_low: 0xffb020,
+  mythic: 0xff4d8d,
 };
 
 const GRADE_LABEL: Record<Grade, string> = {
-  common: 'C',
-  rare: 'R',
-  epic: 'E',
-  legendary: 'L',
-  hidden: 'H',
-};
-
-const ELEMENT_ICON: Record<string, string> = {
-  fire: '🔥',
-  water: '💧',
-  wind: '🌪',
-  earth: '🪨',
-  light: '✨',
-  dark: '🌑',
+  common: '일반',
+  rare: '희귀',
+  epic: '영웅',
+  legendary: '전설',
+  mythic_low: '에픽',
+  mythic: '신화',
 };
 
 let nextUid = 1;
@@ -34,17 +27,22 @@ let nextUid = 1;
 export class UnitEntity extends Phaser.GameObjects.Container {
   readonly uid: number;
   def: Unit;
-  summonPrice: number; // 판매 환급 계산용 (소환 당시 가격)
+  summonPrice: number;
+  // config 등급 스탯
+  atk: number;
+  range: number;
+  atkSpeed: number;
+  projSpeed: number;
   cooldownLeft: number = 0;
-  placed: boolean = false; // 필드에 배치됨 (대기 상태 해제)
+  placed: boolean = false;
 
   private base: Phaser.GameObjects.Container;
   private bodyG: Phaser.GameObjects.Graphics;
+  private batG: Phaser.GameObjects.Graphics;
   private rangeG: Phaser.GameObjects.Graphics;
   private glowG: Phaser.GameObjects.Graphics;
-  private elemIcon: Phaser.GameObjects.Text;
   private idleSeed: number;
-  private showingRange = false;
+  private swingMs = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number, def: Unit, summonPrice: number) {
     super(scene, x, y);
@@ -52,6 +50,12 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.def = def;
     this.summonPrice = summonPrice;
     this.idleSeed = Math.random() * Math.PI * 2;
+
+    const st = registry.baseStatsForGrade(def.grade);
+    this.atk = st.atk;
+    this.range = st.range;
+    this.atkSpeed = st.atkSpeed;
+    this.projSpeed = registry.config.projectileSpeedByGrade[def.grade];
 
     this.rangeG = scene.add.graphics();
     this.add(this.rangeG);
@@ -70,27 +74,26 @@ export class UnitEntity extends Phaser.GameObjects.Container {
 
     this.bodyG = scene.add.graphics();
     this.base.add(this.bodyG);
-    this.drawBody();
 
-    this.elemIcon = scene.add.text(0, -7, ELEMENT_ICON[def.element] ?? '?', {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '18px',
-    });
-    this.elemIcon.setOrigin(0.5);
-    this.base.add(this.elemIcon);
+    this.batG = scene.add.graphics();
+    this.base.add(this.batG);
 
-    const label = scene.add.text(0, 11, GRADE_LABEL[def.grade], {
+    this.drawCharacter();
+
+    const label = scene.add.text(0, 24, GRADE_LABEL[def.grade], {
       fontFamily: 'Pretendard, system-ui, sans-serif',
-      fontSize: '11px',
-      color: '#0e1116',
+      fontSize: '10px',
+      color: '#ffffff',
       fontStyle: 'bold',
+      backgroundColor: this.cssColor(GRADE_COLOR[def.grade]),
+      padding: { x: 4, y: 1 },
     });
     label.setOrigin(0.5);
-    this.base.add(label);
+    this.add(label);
 
-    this.setSize(52, 52);
+    this.setSize(52, 56);
     this.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-26, -26, 52, 52),
+      hitArea: new Phaser.Geom.Rectangle(-26, -30, 52, 60),
       hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       draggable: true,
       useHandCursor: true,
@@ -99,48 +102,101 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     scene.add.existing(this);
   }
 
+  private cssColor(c: number): string {
+    return '#' + c.toString(16).padStart(6, '0');
+  }
+
   private drawGlow(): void {
     const g = this.glowG;
     g.clear();
     const c = GRADE_COLOR[this.def.grade];
-    // 등급 글로우 (epic+ 강조)
-    const intensity =
-      this.def.grade === 'hidden' ? 0.5 : this.def.grade === 'legendary' ? 0.4 : this.def.grade === 'epic' ? 0.28 : 0.15;
+    const order = registry.gradeOrder().indexOf(this.def.grade);
+    const intensity = 0.12 + order * 0.07;
     g.fillStyle(c, intensity);
-    g.fillCircle(0, 0, 30);
+    g.fillCircle(0, 0, 28);
   }
 
-  private drawBody(): void {
+  private drawCharacter(): void {
     const g = this.bodyG;
     g.clear();
     const c = GRADE_COLOR[this.def.grade];
-    // 카드 배경 (다크 패널)
-    g.fillStyle(0x1a1f28, 1);
-    g.fillRoundedRect(-22, -22, 44, 44, 12);
-    // 등급 컬러 테두리
-    g.lineStyle(3, c, 1);
-    g.strokeRoundedRect(-22, -22, 44, 44, 12);
-    // 상단 등급 바
-    g.fillStyle(c, 0.9);
-    g.fillRoundedRect(-22, -22, 44, 8, { tl: 12, tr: 12, bl: 0, br: 0 });
+    const dark = this.darken(c, 0.4);
+
+    // 다리
+    g.fillStyle(dark, 1);
+    g.fillRoundedRect(-9, 10, 6, 12, 2);
+    g.fillRoundedRect(3, 10, 6, 12, 2);
+
+    // 몸통 (유니폼 = 등급컬러)
+    g.fillStyle(c, 1);
+    g.lineStyle(2, dark, 1);
+    g.fillRoundedRect(-13, -10, 26, 24, 7);
+    g.strokeRoundedRect(-13, -10, 26, 24, 7);
+    // 유니폼 하이라이트
+    g.fillStyle(this.lighten(c, 0.3), 0.5);
+    g.fillRoundedRect(-10, -8, 8, 8, 4);
+
+    // 머리 (살색)
+    g.fillStyle(0xfdd9b8, 1);
+    g.lineStyle(2, 0xc9a07a, 1);
+    g.fillCircle(0, -20, 10);
+    g.strokeCircle(0, -20, 10);
+    // 야구 모자 (등급컬러)
+    g.fillStyle(dark, 1);
+    g.fillEllipse(0, -26, 22, 9);
+    g.fillRect(-11, -27, 22, 4);
+    g.fillRect(4, -24, 13, 3); // 챙
+    // 눈
+    g.fillStyle(0x2c1d12, 1);
+    g.fillCircle(-3, -20, 1.4);
+    g.fillCircle(3, -20, 1.4);
+
+    this.drawBat();
+  }
+
+  private drawBat(): void {
+    const g = this.batG;
+    g.clear();
+    const c = GRADE_COLOR[this.def.grade];
+    // 스윙 진행도 (0 idle, 0~1 스윙)
+    const t = this.swingMs > 0 ? 1 - this.swingMs / registry.config.anim.batSwingMs : 0;
+    // idle: 어깨에 걸친 사선 / swing: 앞으로 휘두름
+    const baseAng = -0.7;
+    const ang = this.swingMs > 0 ? baseAng + Math.sin(t * Math.PI) * 1.8 : baseAng;
+    const sx = 11;
+    const sy = -4;
+    const len = 22;
+    const ex = sx + Math.cos(ang) * len;
+    const ey = sy + Math.sin(ang) * len;
+    // 배트 (나무색 + 등급 글로우 끝)
+    g.lineStyle(5, 0x8b5a2b, 1);
+    g.beginPath();
+    g.moveTo(sx, sy);
+    g.lineTo(ex, ey);
+    g.strokePath();
+    g.lineStyle(1.5, 0x4d2e10, 1);
+    g.beginPath();
+    g.moveTo(sx, sy);
+    g.lineTo(ex, ey);
+    g.strokePath();
+    // 배트 끝 등급 글로우
+    g.fillStyle(c, 1);
+    g.fillCircle(ex, ey, 4);
+    // 손
+    g.fillStyle(0xfdd9b8, 1);
+    g.fillCircle(sx, sy, 3);
   }
 
   setRangeVisible(v: boolean): void {
-    this.showingRange = v;
     const g = this.rangeG;
     g.clear();
     if (v) {
-      const r = this.def.range;
       const c = GRADE_COLOR[this.def.grade];
       g.fillStyle(c, 0.08);
-      g.fillCircle(0, 0, r);
+      g.fillCircle(0, 0, this.range);
       g.lineStyle(1.5, c, 0.5);
-      g.strokeCircle(0, 0, r);
+      g.strokeCircle(0, 0, this.range);
     }
-  }
-
-  isShowingRange(): boolean {
-    return this.showingRange;
   }
 
   setSelected(v: boolean): void {
@@ -149,6 +205,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   }
 
   playAttack(targetX: number, targetY: number): void {
+    this.swingMs = registry.config.anim.batSwingMs;
     const a = registry.config.anim;
     const dx = targetX - this.x;
     const dy = targetY - this.y;
@@ -159,8 +216,8 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.scene.tweens.chain({
       targets: this.base,
       tweens: [
-        { x: lx, y: ly, scaleX: a.attackSquashScaleX, scaleY: a.attackSquashScaleY, duration: a.attackLungeInMs, ease: 'Quad.easeOut' },
-        { x: 0, y: 0, scaleX: 1, scaleY: 1, duration: a.attackLungeOutMs, ease: 'Back.easeOut' },
+        { x: lx, y: ly, duration: a.attackLungeInMs, ease: 'Quad.easeOut' },
+        { x: 0, y: 0, duration: a.attackLungeOutMs, ease: 'Back.easeOut' },
       ],
     });
   }
@@ -168,24 +225,36 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   playSpawn(): void {
     const a = registry.config.anim;
     this.base.setScale(0);
-    this.scene.tweens.add({
-      targets: this.base,
-      scaleX: 1,
-      scaleY: 1,
-      duration: a.summonPopInMs,
-      ease: 'Back.easeOut',
-    });
+    this.scene.tweens.add({ targets: this.base, scaleX: 1, scaleY: 1, duration: a.summonPopInMs, ease: 'Back.easeOut' });
   }
 
-  tickIdle(timeMs: number): void {
-    const a = registry.config.anim;
+  tickIdle(timeMs: number, deltaMs: number): void {
+    if (this.swingMs > 0) {
+      this.swingMs -= deltaMs;
+      this.drawBat();
+      if (this.swingMs <= 0) this.drawBat();
+    }
     if (this.scene.tweens.isTweening(this.base)) return;
+    const a = registry.config.anim;
     const phase = (timeMs / a.idleBobPeriodMs) * Math.PI * 2 + this.idleSeed;
     this.base.y = Math.sin(phase) * a.idleBobAmp;
-    this.base.scaleY = 1 + Math.sin(phase * 2) * a.idleScaleY;
   }
 
   sellRefund(): number {
     return Math.round(this.summonPrice * registry.config.sellRatio);
+  }
+
+  private lighten(c: number, p: number): number {
+    const r = Math.min(255, ((c >> 16) & 0xff) + Math.round(255 * p));
+    const g = Math.min(255, ((c >> 8) & 0xff) + Math.round(255 * p));
+    const b = Math.min(255, (c & 0xff) + Math.round(255 * p));
+    return (r << 16) | (g << 8) | b;
+  }
+
+  private darken(c: number, p: number): number {
+    const r = Math.max(0, Math.round(((c >> 16) & 0xff) * (1 - p)));
+    const g = Math.max(0, Math.round(((c >> 8) & 0xff) * (1 - p)));
+    const b = Math.max(0, Math.round((c & 0xff) * (1 - p)));
+    return (r << 16) | (g << 8) | b;
   }
 }

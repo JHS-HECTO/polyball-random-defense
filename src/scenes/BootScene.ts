@@ -36,13 +36,24 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
-    // 레지스트리 hydrate
-    registry.loadFromCache(this);
-    // eslint-disable-next-line no-console
-    console.log(`[Registry] loaded: ${registry.units.length} units, ${registry.enemies.length} enemies, ${registry.mergeRecipes.length} merge, ${registry.hiddenRecipes.length} hidden`);
-
-    this.generateBaseTextures();
-    this.scene.start('Lobby');
+    try {
+      this.generateBaseTextures();
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[Boot] texture gen failed', e);
+    }
+    try {
+      registry.loadFromCache(this);
+      // eslint-disable-next-line no-console
+      console.log(`[Registry] ${registry.units.length} units, ${registry.enemies.length} enemies`);
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error('[Boot] registry load failed', e);
+    }
+    // SceneManager 레벨로 Lobby 시작 (ScenePlugin.start 간헐 실패 회피) + Boot 숨김
+    this.game.scene.start('Lobby');
+    this.scene.setVisible(false);
+    this.scene.sleep();
   }
 
   private generateBaseTextures(): void {

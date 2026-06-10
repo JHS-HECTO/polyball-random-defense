@@ -3,7 +3,7 @@
 
 import Phaser from 'phaser';
 
-export type Grade = 'common' | 'rare' | 'epic' | 'legendary' | 'hidden';
+export type Grade = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic_low' | 'mythic';
 export type Element = 'fire' | 'water' | 'wind' | 'earth' | 'light' | 'dark';
 
 export type Unit = {
@@ -43,24 +43,29 @@ export type HiddenRecipe = {
 // config.json 타입
 export type GameConfig = {
   summonCost: { base: number; growth: number; growthFlat: number };
+  summonCostFixed: number;
   rerollCost: number;
   maxUnits: number;
   startGold: number;
   goldPerKill: Record<string, number>;
+  goldPerKillFlat: number;
   goldPerWaveClear: number;
   gradeWeights: Record<Grade, number>;
   dmgByGrade: Record<Grade, number>;
   attackSpeedByGrade: Record<Grade, number>;
   rangeByGrade: Record<Grade, number>;
+  projectileSpeedByGrade: Record<Grade, number>;
   mobHpByWave: { base: number; perWaveMult: number; bossMult: number };
   mobSpeed: { base: number; perWaveAdd: number; berserkMult: number };
-  mobSpawnRate: { base: number; perWaveMult: number; minInterval: number };
+  mobsPerWave: number;
   bossEveryNWaves: number;
   berserkEveryNWaves: number;
   bossHpMultiplier: number;
   gameOverMobCount: number;
   sellRatio: number;
   waveDurationMs: number;
+  gradeLabels: Record<Grade, string>;
+  gradeColors: Record<Grade, string>;
   anim: {
     idleBobAmp: number;
     idleBobPeriodMs: number;
@@ -70,6 +75,7 @@ export type GameConfig = {
     attackLungeOutMs: number;
     attackSquashScaleX: number;
     attackSquashScaleY: number;
+    batSwingMs: number;
     projectileSpeed: number;
     mobHitFlashMs: number;
     mobKnockbackPx: number;
@@ -176,10 +182,13 @@ class Registry {
     return pool[idx] ?? this.units[0]!;
   }
 
-  // 소환 비용 (구매 인덱스 기반)
-  summonCost(purchaseIndex: number): number {
-    const { base, growth, growthFlat } = this.config.summonCost;
-    return Math.round(base * Math.pow(growth, purchaseIndex) + growthFlat * purchaseIndex);
+  // 소환 비용 — 고정 50 (config.summonCostFixed)
+  summonCost(_purchaseIndex: number): number {
+    return this.config.summonCostFixed;
+  }
+
+  gradeOrder(): Grade[] {
+    return ['common', 'rare', 'epic', 'legendary', 'mythic_low', 'mythic'];
   }
 
   // 등급별 베이스 스탯 (config 기반)

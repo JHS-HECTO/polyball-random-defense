@@ -11,6 +11,8 @@ type Proj = {
   getTarget: () => { x: number; y: number; alive: boolean } | null;
   damage: number;
   color: number;
+  speed: number;
+  spin: number;
   onHit: (dmg: number) => void;
   alive: boolean;
   life: number;
@@ -32,6 +34,7 @@ export class ProjectilePool {
     getTarget: () => { x: number; y: number; alive: boolean } | null;
     damage: number;
     color: number;
+    speed?: number;
     onHit: (dmg: number) => void;
   }): void {
     const g = this.scene.add.graphics();
@@ -44,6 +47,8 @@ export class ProjectilePool {
       getTarget: opts.getTarget,
       damage: opts.damage,
       color: opts.color,
+      speed: opts.speed ?? registry.config.anim.projectileSpeed,
+      spin: 0,
       onHit: opts.onHit,
       alive: true,
       life: 1500,
@@ -51,7 +56,6 @@ export class ProjectilePool {
   }
 
   update(deltaMs: number): void {
-    const speed = registry.config.anim.projectileSpeed;
     const dt = deltaMs / 1000;
     for (let i = this.list.length - 1; i >= 0; i -= 1) {
       const p = this.list[i];
@@ -67,22 +71,41 @@ export class ProjectilePool {
       const dy = tgt.y - p.y;
       const d = Math.hypot(dx, dy);
       if (d < 14) {
-        // 적중
         p.onHit(p.damage);
         this.impact(p.x, p.y, p.color);
         p.g.destroy();
         this.list.splice(i, 1);
         continue;
       }
-      const v = speed * dt;
+      const v = p.speed * dt;
       p.x += (dx / d) * v;
       p.y += (dy / d) * v;
-      p.g.clear();
-      p.g.fillStyle(0xffffff, 0.9);
-      p.g.fillCircle(p.x, p.y, 5);
-      p.g.fillStyle(p.color, 1);
-      p.g.fillCircle(p.x, p.y, 3.5);
+      p.spin += deltaMs * 0.02;
+      this.drawBaseball(p);
     }
+  }
+
+  // 야구공 모양 (흰 공 + 빨간 실밥 + 등급 글로우)
+  private drawBaseball(p: Proj): void {
+    const g = p.g;
+    g.clear();
+    // 등급 글로우
+    g.fillStyle(p.color, 0.4);
+    g.fillCircle(p.x, p.y, 7);
+    // 공 본체
+    g.fillStyle(0xffffff, 1);
+    g.fillCircle(p.x, p.y, 5);
+    g.lineStyle(1, 0xcccccc, 1);
+    g.strokeCircle(p.x, p.y, 5);
+    // 실밥 (회전)
+    g.lineStyle(1, 0xe2553f, 1);
+    const a = p.spin;
+    g.beginPath();
+    g.arc(p.x, p.y, 4, a - 0.6, a + 0.6, false);
+    g.strokePath();
+    g.beginPath();
+    g.arc(p.x, p.y, 4, a + Math.PI - 0.6, a + Math.PI + 0.6, false);
+    g.strokePath();
   }
 
   private impact(x: number, y: number, color: number): void {
