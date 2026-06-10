@@ -58,6 +58,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   private idleSeed: number;
   private swingMs = 0;
   private swingDuration = 200;
+  private usesSprite = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, def: Unit, summonPrice: number) {
     super(scene, x, y);
@@ -108,7 +109,17 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.batG = scene.add.graphics();
     this.base.add(this.batG);
 
-    this.drawCharacter();
+    // 스프라이트 PNG가 로드돼 있으면 이미지 사용, 아니면 절차적 placeholder
+    if (scene.textures.exists(def.id)) {
+      this.usesSprite = true;
+      const img = scene.add.image(0, 0, def.id);
+      const targetH = 68; // 유닛 표시 높이 (px)
+      img.setScale(targetH / img.height);
+      img.setOrigin(0.5, 0.6); // 발이 그림자 근처에 오도록
+      this.base.add(img);
+    } else {
+      this.drawCharacter();
+    }
 
     // 등급 라벨 (하단)
     const label = scene.add.text(0, 24, GRADE_LABEL[def.grade], {
@@ -328,10 +339,12 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   }
 
   tickIdle(timeMs: number, deltaMs: number): void {
-    if (this.swingMs > 0) {
+    if (this.swingMs > 0 && !this.usesSprite) {
       this.swingMs -= deltaMs;
       this.drawBat();
       if (this.swingMs <= 0) this.drawBat();
+    } else if (this.swingMs > 0) {
+      this.swingMs -= deltaMs; // 스프라이트는 lunge 트윈만 (배트 그리기 없음)
     }
     if (this.scene.tweens.isTweening(this.base)) return;
     const a = registry.config.anim;

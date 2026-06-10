@@ -50,10 +50,29 @@ export class BootScene extends Phaser.Scene {
       // eslint-disable-next-line no-console
       console.error('[Boot] registry load failed', e);
     }
-    // SceneManager 레벨로 Lobby 시작 (ScenePlugin.start 간헐 실패 회피) + Boot 숨김
-    this.game.scene.start('Lobby');
-    this.scene.setVisible(false);
-    this.scene.sleep();
+
+    // 유닛/적 스프라이트 로드 (있는 파일만 성공, 없으면 placeholder로 폴백).
+    // 누락 파일은 loaderror로 무시 — 'complete'는 에러와 무관하게 발생.
+    this.load.off('loaderror');
+    this.load.on('loaderror', () => {/* 누락 스프라이트 무시 (placeholder 사용) */});
+    let queued = 0;
+    for (const u of registry.units) {
+      if (!this.textures.exists(u.id)) { this.load.image(u.id, `data/${u.sprite}`); queued += 1; }
+    }
+    for (const en of registry.enemies) {
+      if (!this.textures.exists(en.id)) { this.load.image(en.id, `data/${en.sprite}`); queued += 1; }
+    }
+    const goNext = (): void => {
+      this.game.scene.start('Lobby');
+      this.scene.setVisible(false);
+      this.scene.sleep();
+    };
+    if (queued > 0) {
+      this.load.once('complete', goNext);
+      this.load.start();
+    } else {
+      goNext();
+    }
   }
 
   private generateBaseTextures(): void {
