@@ -97,9 +97,14 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.add(this.glowG);
     this.drawGlow();
 
-    const shadow = scene.add.image(0, 20, 'shadow');
-    shadow.setAlpha(0.4);
-    shadow.setScale(0.7);
+    this.usesSprite = scene.textures.exists(def.id);
+
+    // 발밑 타원 그림자 (검정 20%, 캐릭폭 70%) — 스프라이트 아래 레이어, 바닥에 붙어 보이게
+    const footY = this.usesSprite ? 34 : 22; // 스프라이트는 발이 더 아래
+    const shW = 42 * this.gradeScale; // 캐릭폭(~60)의 70%
+    const shadow = scene.add.graphics();
+    shadow.fillStyle(0x000000, 0.2);
+    shadow.fillEllipse(0, footY * this.gradeScale, shW, shW * 0.34);
     this.add(shadow);
 
     this.base = scene.add.container(0, 0);
@@ -112,8 +117,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.base.add(this.batG);
 
     // 스프라이트 PNG가 로드돼 있으면 이미지 사용, 아니면 절차적 placeholder
-    if (scene.textures.exists(def.id)) {
-      this.usesSprite = true;
+    if (this.usesSprite) {
       const img = scene.add.image(0, 0, def.id);
       const targetH = 90; // 유닛 표시 높이 (px)
       img.setScale(targetH / img.height);

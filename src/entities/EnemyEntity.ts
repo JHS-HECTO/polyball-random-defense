@@ -68,9 +68,11 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     this.bobSeed = Math.random() * Math.PI * 2;
     if (!def.isBoss) this.dmgReduction = registry.config.enemyTypes[kind].dmgReduction;
 
-    const shadow = scene.add.image(0, def.isBoss ? 24 : 13, 'shadow');
-    shadow.setAlpha(0.35);
-    shadow.setScale(def.isBoss ? 0.85 : 0.5);
+    // 발밑 타원 그림자 (검정 20%, 캐릭폭 70%) — 몸체 아래 레이어
+    const shW = def.isBoss ? 70 : kind === 'armored' ? 32 : kind === 'runner' ? 22 : 28;
+    const shadow = scene.add.graphics();
+    shadow.fillStyle(0x000000, 0.2);
+    shadow.fillEllipse(0, def.isBoss ? 26 : 15, shW, shW * 0.34);
     this.add(shadow);
 
     // healer 회복 오라 (연두 링)
