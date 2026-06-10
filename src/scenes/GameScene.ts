@@ -52,10 +52,6 @@ export class GameScene extends Phaser.Scene {
   // 드래그/선택
   private draggingUnit: UnitEntity | null = null;
   private dragMoved = false;
-  private dragStartX = 0;
-  private dragStartY = 0;
-  private dragPrevX = 0;
-  private dragPrevY = 0;
   private selectedUnit: UnitEntity | null = null;
   private sellMode = false;
 
@@ -307,16 +303,22 @@ export class GameScene extends Phaser.Scene {
   // ─── 입력 (드래그/탭/판매) ───────────────────────────────
 
   private attachInput(): void {
-    this.input.dragDistanceThreshold = 6;
+    this.input.dragDistanceThreshold = 4;
+
+    // 유닛 누름 = 즉시 선택(하이라이트+판매바). threshold 무관 항상 발생.
+    this.input.on(Phaser.Input.Events.GAMEOBJECT_DOWN, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
+      if (!(obj instanceof UnitEntity)) return;
+      if (this.sellMode) {
+        this.sellUnit(obj);
+        return;
+      }
+      this.selectUnit(obj);
+    });
 
     this.input.on(Phaser.Input.Events.DRAG_START, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
       if (!(obj instanceof UnitEntity)) return;
       this.draggingUnit = obj;
       this.dragMoved = false;
-      this.dragStartX = obj.x;
-      this.dragStartY = obj.y;
-      this.dragPrevX = obj.x;
-      this.dragPrevY = obj.y;
       obj.setDepth(40);
       obj.setRangeVisible(true);
     });
@@ -324,8 +326,7 @@ export class GameScene extends Phaser.Scene {
     this.input.on(Phaser.Input.Events.DRAG, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject, x: number, y: number) => {
       if (!(obj instanceof UnitEntity)) return;
       this.dragMoved = true;
-      // 드래그 중엔 손가락 그대로 따라옴 (clamp 안함) → 위/구석 배치 자연스러움
-      obj.setPosition(x, y);
+      obj.setPosition(x, y); // 손가락 그대로 따라옴
     });
 
     this.input.on(Phaser.Input.Events.DRAG_END, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
@@ -333,27 +334,16 @@ export class GameScene extends Phaser.Scene {
       const u = obj;
       u.setDepth(10);
       this.draggingUnit = null;
-
-      if (!this.dragMoved) {
-        // 탭 = 선택 or 판매
-        u.setRangeVisible(false);
-        if (this.sellMode) {
-          this.sellUnit(u);
-        } else {
-          this.selectUnit(u);
-        }
-        return;
-      }
-
-      // 배치 — 배치영역(트랙 안쪽)으로 clamp + 겹침 체크
-      u.setRangeVisible(false);
+      if (!this.dragMoved) return; // 안 움직였으면 선택만 (GAMEOBJECT_DOWN에서 처리)
+      // 배치영역 clamp + 겹침 회피
       const c = this.clampToField(u.x, u.y);
       u.setPosition(c.x, c.y);
       if (this.overlapsUnit(u.x, u.y, u)) {
         const free = this.findNearbyFree(u.x, u.y, u);
         u.setPosition(free.x, free.y);
       }
-      this.deselect();
+      // 옮긴 유닛은 선택 상태 유지 (판매바 따라옴 위해 재선택)
+      this.selectUnit(u);
     });
 
     // 빈 공간 탭 → 선택 해제

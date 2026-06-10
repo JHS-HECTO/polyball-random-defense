@@ -75,10 +75,10 @@ button {
 
 #game-frame {
   position: relative;
-  width: min(100vw, 54rem);
-  height: 100vh;
-  height: 100dvh;
+  /* 9:16 비율 엄수 — 높이는 화면과 폭유도 중 작은 값. 캔버스 letterbox 제거 → Phaser input 좌표 정확 */
   aspect-ratio: 9 / 16;
+  height: min(100dvh, calc(100vw * 16 / 9));
+  max-width: 54rem;
   background: var(--bg-frame);
   box-shadow: var(--shadow-2);
   overflow: hidden;
