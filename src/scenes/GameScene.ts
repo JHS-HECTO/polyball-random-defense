@@ -6,6 +6,8 @@ import {
   FIELD,
   GAME_HEIGHT,
   GAME_WIDTH,
+  TRACK,
+  TRACK_WAYPOINTS,
 } from 'config/game';
 import { SLOTS, type SlotDef } from 'config/slots';
 import { registry } from 'systems/registry';
@@ -33,6 +35,10 @@ export class GameScene extends Phaser.Scene {
   private slotMarkers = new Map<number, Phaser.GameObjects.Graphics>();
   private enemies: EnemyEntity[] = [];
 
+  // 순환 트랙
+  private track!: Phaser.Curves.Path;
+  private trackLen = 1;
+
   // 웨이브 상태
   private spawnTimer = 0;
   private spawnInterval = 1000;
@@ -59,8 +65,10 @@ export class GameScene extends Phaser.Scene {
     this.isGameOver = false;
     this.interWave = false;
 
+    this.buildTrack();
     this.drawBackground();
     this.drawField();
+    this.drawTrack();
     this.drawBase();
     this.drawSlots();
     this.attachDrag();
@@ -99,9 +107,15 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // 적 이동/틱
+    // 적 트랙 순환 이동
     for (const e of this.enemies) {
-      e.move(dt, time);
+      if (!e.alive) continue;
+      e.trackDist += e.speed * dt;
+      const t = ((e.trackDist % this.trackLen) + this.trackLen) % this.trackLen / this.trackLen;
+      const p = this.track.getPoint(t);
+      const p2 = this.track.getPoint((t + 0.01) % 1);
+      const heading = Math.atan2(p2.y - p.y, p2.x - p.x);
+      e.applyTrackTransform(p.x, p.y, heading, time);
       e.tick(delta);
     }
 
@@ -160,6 +174,74 @@ export class GameScene extends Phaser.Scene {
     g.strokeRoundedRect(FIELD.left, FIELD.top, FIELD.right - FIELD.left, FIELD.bottom - FIELD.top, 12);
     g.lineStyle(2, COLORS.fieldBorder, 0.6);
     g.strokeRoundedRect(FIELD.left + 4, FIELD.top + 4, FIELD.right - FIELD.left - 8, FIELD.bottom - FIELD.top - 8, 10);
+  }
+
+  private buildTrack(): void {
+    const wp = TRACK_WAYPOINTS;
+    const head = wp[0]!;
+    this.track = new Phaser.Curves.Path(head.x, head.y);
+    for (let i = 1; i < wp.length; i += 1) {
+      const p = wp[i]!;
+      this.track.lineTo(p.x, p.y);
+    }
+    this.track.lineTo(head.x, head.y); // 닫기
+    this.trackLen = this.track.getLength();
+  }
+
+  private drawTrack(): void {
+    // 트랙 바닥 띠 (어두운 흙길) + 점선 가이드 라인
+    const g = this.add.graphics();
+    g.setDepth(3);
+    const w = 44; // 트랙 폭
+    // 바닥 띠 — 사각 링 (외곽 - 내곽)
+    g.fillStyle(0x000000, 0.22);
+    g.fillRoundedRect(TRACK.left - w / 2, TRACK.top - w / 2, TRACK.right - TRACK.left + w, TRACK.bottom - TRACK.top + w, TRACK.corner + w / 2);
+    g.fillStyle(0x3a3326, 0.9);
+    g.fillRoundedRect(TRACK.left - w / 2, TRACK.top - w / 2, TRACK.right - TRACK.left + w, TRACK.bottom - TRACK.top + w, TRACK.corner + w / 2);
+    // 안쪽 잔디 복원 (링 가운데 파냄)
+    g.fillStyle(0x000000, 1);
+    // 안쪽은 잔디 타일이 이미 깔려있으므로 어두운 띠만 두고 가운데는 안 칠함 → 대신 점선으로 표시
+    g.clear();
+    // 어두운 트랙 띠 (스트로크로 두껍게)
+    const line = this.add.graphics();
+    line.setDepth(3);
+    line.lineStyle(w, 0x2c2820, 0.55);
+    this.track.draw(line, 64);
+    // 중앙 점선 가이드
+    const guide = this.add.graphics();
+    guide.setDepth(3);
+    guide.lineStyle(2, 0xffd35e, 0.35);
+    const pts = this.track.getPoints(120);
+    for (let i = 0; i < pts.length; i += 4) {
+      const a = pts[i];
+      const b = pts[i + 1];
+      if (!a || !b) continue;
+      guide.beginPath();
+      guide.moveTo(a.x, a.y);
+      guide.lineTo(b.x, b.y);
+      guide.strokePath();
+    }
+    // 화살표 (진행 방향) 4모서리 변 중앙
+    const arrowGuide = this.add.graphics();
+    arrowGuide.setDepth(3);
+    arrowGuide.fillStyle(0xffd35e, 0.5);
+    for (const tt of [0.12, 0.37, 0.62, 0.87]) {
+      const p = this.track.getPoint(tt);
+      const p2 = this.track.getPoint((tt + 0.01) % 1);
+      const ang = Math.atan2(p2.y - p.y, p2.x - p.x);
+      this.drawArrow(arrowGuide, p.x, p.y, ang);
+    }
+  }
+
+  private drawArrow(g: Phaser.GameObjects.Graphics, x: number, y: number, ang: number): void {
+    const size = 8;
+    const tipX = x + Math.cos(ang) * size;
+    const tipY = y + Math.sin(ang) * size;
+    const leftX = x + Math.cos(ang + 2.4) * size;
+    const leftY = y + Math.sin(ang + 2.4) * size;
+    const rightX = x + Math.cos(ang - 2.4) * size;
+    const rightY = y + Math.sin(ang - 2.4) * size;
+    g.fillTriangle(tipX, tipY, leftX, leftY, rightX, rightY);
   }
 
   private drawBase(): void {
@@ -608,22 +690,9 @@ export class GameScene extends Phaser.Scene {
     let speed = cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1);
     if (isBerserk) speed *= cfg.mobSpeed.berserkMult;
 
-    // 가장자리 랜덤 스폰 (상/우/하 라인)
-    const edge = Math.floor(Math.random() * 3);
-    let sx;
-    let sy;
-    if (edge === 0) {
-      sx = FIELD.left + Math.random() * (FIELD.right - FIELD.left);
-      sy = FIELD.top + 10;
-    } else if (edge === 1) {
-      sx = FIELD.right - 10;
-      sy = FIELD.top + Math.random() * (FIELD.bottom - FIELD.top);
-    } else {
-      sx = FIELD.left + Math.random() * (FIELD.right - FIELD.left);
-      sy = FIELD.bottom - 10;
-    }
-
-    const e = new EnemyEntity(this, sx, sy, def, hp, speed);
+    // 트랙 스폰 지점(좌상 모서리)에서 등장 → 트랙 합류
+    const start = this.track.getPoint(0);
+    const e = new EnemyEntity(this, start.x, start.y, def, hp, speed, 0);
     this.enemies.push(e);
     this.spawnedThisWave += 1;
   }

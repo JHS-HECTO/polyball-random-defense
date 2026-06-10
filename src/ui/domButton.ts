@@ -21,15 +21,17 @@ const injectStyles = (): void => {
     }
     .ovl-spacer { flex: 1; }
     .ovl-btn {
-      padding: 1.4rem 3.2rem;
+      padding: 14px 40px;
+      min-height: 56px;
       background: linear-gradient(180deg, #ffd35e 0%, #ffb347 100%);
       color: #2c1d12;
-      border: 0.3rem solid #d96a2c;
+      border: 3px solid #d96a2c;
       border-radius: var(--r-lg);
       box-shadow: var(--shadow-2);
       font-family: inherit;
-      font-size: 2.4rem;
+      font-size: 24px;
       font-weight: 800;
+      white-space: nowrap;
       cursor: pointer;
       transition: transform 0.1s ease;
     }
@@ -38,8 +40,9 @@ const injectStyles = (): void => {
       background: var(--bg-panel);
       color: var(--ink-1);
       border-color: var(--bg-elevated);
-      font-size: 1.8rem;
-      padding: 1.1rem 2.4rem;
+      font-size: 18px;
+      padding: 12px 28px;
+      min-height: 48px;
     }
   `;
   document.head.appendChild(s);

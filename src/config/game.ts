@@ -18,7 +18,25 @@ export const FIELD_CENTER_Y = (FIELD.top + FIELD.bottom) / 2; // 470
 
 // 본거지 (성) 위치 = 필드 중앙
 export const BASE_POS = { x: FIELD_CENTER_X, y: FIELD_CENTER_Y };
-export const BASE_RADIUS = 50;
+export const BASE_RADIUS = 44;
+
+// 순환 트랙 — 본거지를 감싸는 사각 링 (닫힌 루프). 적이 따라 돈다.
+// 시계방향 waypoint. 모서리 라운드는 시각만, 이동은 직선 보간.
+export const TRACK = {
+  left: 80,
+  right: GAME_WIDTH - 80,   // 460
+  top: 250,
+  bottom: 690,
+  corner: 40,               // 모서리 라운드 반경 (시각)
+} as const;
+
+// waypoint 닫힌 루프 (시계방향, 좌상 시작)
+export const TRACK_WAYPOINTS: ReadonlyArray<{ x: number; y: number }> = [
+  { x: TRACK.left, y: TRACK.top },
+  { x: TRACK.right, y: TRACK.top },
+  { x: TRACK.right, y: TRACK.bottom },
+  { x: TRACK.left, y: TRACK.bottom },
+];
 
 // 색 — 인게임 캔버스용 hex
 export const COLORS = {

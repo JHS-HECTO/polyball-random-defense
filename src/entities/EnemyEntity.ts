@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import { BASE_POS } from 'config/game';
 import { registry, type Enemy } from 'systems/registry';
 
-// 적 — placeholder: 속성컬러 원 + 라벨. 본거지로 이동 후 주변 orbit.
+// 적 — placeholder: 속성컬러 원. 순환 트랙을 따라 무한히 돈다.
+// 좌표/회전은 GameScene이 트랙 path 기반으로 매 프레임 갱신.
 
 const ELEMENT_COLOR: Record<string, number> = {
   fire: 0xe2553f,
@@ -15,28 +15,32 @@ const ELEMENT_COLOR: Record<string, number> = {
 
 let nextEid = 1;
 
-export type EnemyState = 'approaching' | 'orbiting';
-
 export class EnemyEntity extends Phaser.GameObjects.Container {
   readonly eid: number;
   def: Enemy;
   hp: number;
   hpMax: number;
-  speed: number;
-  enemyState: EnemyState = 'approaching';
+  speed: number;       // px/sec along track
   alive = true;
   isBoss: boolean;
 
+  // 트랙 진행 거리 (px). GameScene이 매 프레임 += speed*dt, 좌표 보간.
+  trackDist: number;
+
   private bodyG: Phaser.GameObjects.Graphics;
   private hpBar: Phaser.GameObjects.Graphics;
-  private bodyImg: Phaser.GameObjects.Graphics;
-  private orbitAngle = 0;
-  private orbitRadius = 0;
-  private orbitDir = 1;
   private hitFlashLeft = 0;
   private bobSeed: number;
 
-  constructor(scene: Phaser.Scene, x: number, y: number, def: Enemy, hp: number, speed: number) {
+  constructor(
+    scene: Phaser.Scene,
+    x: number,
+    y: number,
+    def: Enemy,
+    hp: number,
+    speed: number,
+    startDist: number,
+  ) {
     super(scene, x, y);
     this.eid = nextEid++;
     this.def = def;
@@ -44,17 +48,16 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     this.hpMax = hp;
     this.speed = speed;
     this.isBoss = def.isBoss;
+    this.trackDist = startDist;
     this.bobSeed = Math.random() * Math.PI * 2;
-    this.orbitDir = Math.random() < 0.5 ? 1 : -1;
 
-    const shadow = scene.add.image(0, def.isBoss ? 26 : 14, 'shadow');
+    const shadow = scene.add.image(0, def.isBoss ? 24 : 13, 'shadow');
     shadow.setAlpha(0.35);
-    shadow.setScale(def.isBoss ? 0.9 : 0.5);
+    shadow.setScale(def.isBoss ? 0.85 : 0.5);
     this.add(shadow);
 
-    this.bodyImg = scene.add.graphics();
-    this.add(this.bodyImg);
-    this.bodyG = this.bodyImg;
+    this.bodyG = scene.add.graphics();
+    this.add(this.bodyG);
     this.drawBody();
 
     this.hpBar = scene.add.graphics();
@@ -69,7 +72,7 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     const g = this.bodyG;
     g.clear();
     const c = ELEMENT_COLOR[this.def.element] ?? 0x888888;
-    const radius = this.isBoss ? 30 : 16;
+    const radius = this.isBoss ? 28 : 15;
     const flash = this.hitFlashLeft > 0;
     g.fillStyle(this.darken(c, 0.4), 1);
     g.fillCircle(0, 0, radius);
@@ -81,26 +84,24 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     }
     g.lineStyle(2, this.darken(c, 0.55), 1);
     g.strokeCircle(0, 0, radius);
-    // 눈
     if (!flash) {
       g.fillStyle(0x0a0d14, 1);
       g.fillCircle(-radius * 0.3, -radius * 0.1, radius * 0.12);
       g.fillCircle(radius * 0.3, -radius * 0.1, radius * 0.12);
     }
-    // 보스 뿔
     if (this.isBoss) {
       g.fillStyle(this.darken(c, 0.55), 1);
-      g.fillTriangle(-14, -22, -8, -38, -2, -24);
-      g.fillTriangle(14, -22, 8, -38, 2, -24);
+      g.fillTriangle(-13, -20, -7, -34, -2, -22);
+      g.fillTriangle(13, -20, 7, -34, 2, -22);
     }
   }
 
   private drawHpBar(): void {
     const g = this.hpBar;
     g.clear();
-    const w = this.isBoss ? 50 : 28;
+    const w = this.isBoss ? 46 : 26;
     const h = this.isBoss ? 5 : 3;
-    const y = this.isBoss ? -42 : -24;
+    const y = this.isBoss ? -38 : -22;
     const ratio = Math.max(0, this.hp / this.hpMax);
     g.fillStyle(0x000000, 0.6);
     g.fillRect(-w / 2 - 1, y - 1, w + 2, h + 2);
@@ -110,20 +111,12 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     g.fillRect(-w / 2, y, w * ratio, h);
   }
 
-  // 데미지 적용. true = 사망.
   takeDamage(amount: number): boolean {
     if (!this.alive) return false;
     this.hp -= amount;
     this.hitFlashLeft = registry.config.anim.mobHitFlashMs;
     this.drawBody();
     this.drawHpBar();
-    // knockback
-    const a = registry.config.anim;
-    const dx = this.x - BASE_POS.x;
-    const dy = this.y - BASE_POS.y;
-    const d = Math.hypot(dx, dy) || 1;
-    this.x += (dx / d) * a.mobKnockbackPx;
-    this.y += (dy / d) * a.mobKnockbackPx;
     if (this.hp <= 0) {
       this.alive = false;
       return true;
@@ -131,34 +124,14 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     return false;
   }
 
-  // 이동 갱신. dtSec.
-  move(dtSec: number, timeMs: number): void {
+  // GameScene이 트랙 좌표 + 진행 방향(heading) 넘겨줌 → 위치/기울기/bob 적용.
+  applyTrackTransform(x: number, y: number, headingRad: number, timeMs: number): void {
     if (!this.alive) return;
-    const dx = BASE_POS.x - this.x;
-    const dy = BASE_POS.y - this.y;
-    const dist = Math.hypot(dx, dy);
-    const orbitR = this.isBoss ? 70 : 60;
-
-    if (this.enemyState === 'approaching') {
-      if (dist <= orbitR) {
-        this.enemyState = 'orbiting';
-        this.orbitRadius = orbitR + Math.random() * 24;
-        this.orbitAngle = Math.atan2(this.y - BASE_POS.y, this.x - BASE_POS.x);
-      } else {
-        const v = this.speed * dtSec;
-        this.x += (dx / dist) * v;
-        this.y += (dy / dist) * v;
-        // 진행 방향 기울기 + bob
-        this.rotation = Math.sin(timeMs / 250 + this.bobSeed) * 0.09;
-      }
-    } else {
-      // orbit 본거지 주변
-      const angVel = (this.speed / this.orbitRadius) * 0.6 * this.orbitDir;
-      this.orbitAngle += angVel * dtSec;
-      this.x = BASE_POS.x + Math.cos(this.orbitAngle) * this.orbitRadius;
-      this.y = BASE_POS.y + Math.sin(this.orbitAngle) * this.orbitRadius;
-      this.rotation = Math.sin(timeMs / 200 + this.bobSeed) * 0.08;
-    }
+    const bob = Math.sin(timeMs / 220 + this.bobSeed) * (this.isBoss ? 1.5 : 2);
+    this.x = x;
+    this.y = y + bob;
+    // 진행 방향으로 살짝 기울기 (좌우 이동 시 ±)
+    this.rotation = Math.sin(headingRad) * 0.12 + Math.sin(timeMs / 260 + this.bobSeed) * 0.05;
   }
 
   tick(deltaMs: number): void {
@@ -171,7 +144,6 @@ export class EnemyEntity extends Phaser.GameObjects.Container {
     }
   }
 
-  // 사망 연출 후 파괴
   playDeath(onDone: () => void): void {
     const a = registry.config.anim;
     this.scene.tweens.add({

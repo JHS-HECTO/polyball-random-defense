@@ -240,15 +240,32 @@ export class Hud {
         align-items: center;
         justify-content: space-between;
         gap: 0.6rem;
+        min-width: 0;
+      }
+
+      .hud-nick {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
       }
 
       .hud-nick-text {
-        font-size: 1.4rem;
+        display: block;
+        font-size: clamp(13px, 3.6vw, 16px);
         font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 38vw;
+      }
+
+      .hud-wave, .hud-score {
+        flex: 0 0 auto;
+        white-space: nowrap;
       }
 
       .hud-wave-label, .hud-score-label {
-        font-size: 1rem;
+        font-size: 10px;
         color: var(--ink-3);
         font-weight: 600;
         letter-spacing: 0.04em;
@@ -256,13 +273,13 @@ export class Hud {
       }
 
       .hud-wave-num {
-        font-size: 1.8rem;
+        font-size: 18px;
         font-weight: 800;
         color: var(--accent);
       }
 
       .hud-score-num {
-        font-size: 1.5rem;
+        font-size: 15px;
         font-weight: 800;
         color: var(--ink-1);
       }
@@ -289,10 +306,10 @@ export class Hud {
       }
 
       .hud-progress-text {
-        font-size: 1.1rem;
+        font-size: 12px;
         font-weight: 700;
         color: var(--ink-2);
-        min-width: 4rem;
+        min-width: 40px;
         text-align: right;
       }
 
@@ -300,11 +317,12 @@ export class Hud {
         display: inline-flex;
         align-items: center;
         gap: 0.3rem;
-        padding: 0.3rem 0.8rem;
+        padding: 4px 10px;
         border-radius: var(--r-pill);
         font-weight: 700;
-        font-size: 1.3rem;
+        font-size: 13px;
         color: var(--ink-1);
+        white-space: nowrap;
       }
 
       .hud-pill-gold {
@@ -318,20 +336,21 @@ export class Hud {
       }
 
       .hud-icon {
-        font-size: 1.4rem;
+        font-size: 14px;
       }
 
       .hud-mob-counter {
         display: inline-flex;
         align-items: center;
         gap: 0.3rem;
-        padding: 0.3rem 0.8rem;
+        padding: 4px 10px;
         border-radius: var(--r-pill);
         background: rgba(255, 255, 255, 0.08);
         border: 0.1rem solid rgba(255, 255, 255, 0.18);
         font-weight: 700;
-        font-size: 1.3rem;
+        font-size: 13px;
         color: var(--ink-2);
+        white-space: nowrap;
         transition: all 0.2s ease;
       }
 
@@ -348,7 +367,7 @@ export class Hud {
       }
 
       .hud-mob-icon {
-        font-size: 1.3rem;
+        font-size: 13px;
       }
 
       .hud-mob-bar {
@@ -376,20 +395,25 @@ export class Hud {
       .hud-bottom {
         position: absolute;
         left: 0; right: 0; bottom: 0;
-        padding: 1rem 1.4rem 1.6rem;
+        padding: 0.8rem 1.2rem calc(0.8rem + env(safe-area-inset-bottom, 0px));
         background: linear-gradient(0deg, rgba(10, 13, 20, 0.95) 0%, rgba(10, 13, 20, 0.6) 80%, transparent 100%);
         display: flex;
+        flex-direction: row;
         align-items: stretch;
         gap: 0.8rem;
       }
 
+      /* 자동합성 = 작은 정사각 토글 칩 (px 고정 — rem 베이스 영향 차단) */
       .hud-automerge {
+        flex: 0 0 auto;
+        width: 60px;
+        min-height: 48px;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 0.3rem;
-        padding: 0 1.2rem;
+        gap: 0.2rem;
+        padding: 0.4rem;
         background: var(--bg-panel);
         border: 0.2rem solid var(--bg-elevated);
         border-radius: var(--r-md);
@@ -404,9 +428,10 @@ export class Hud {
         color: var(--ink-1);
       }
       .hud-automerge-dot {
-        width: 1rem; height: 1rem;
+        width: 0.8rem; height: 0.8rem;
         border-radius: 50%;
         background: var(--ink-3);
+        flex: 0 0 auto;
       }
       .hud-automerge.on .hud-automerge-dot {
         background: var(--ok);
@@ -418,14 +443,18 @@ export class Hud {
         white-space: nowrap;
       }
 
+      /* 소환 = 넓은 가로 버튼, 한 줄 */
       .hud-summon {
-        flex: 1;
-        display: grid;
-        grid-template-areas:
-          'label cost'
-          'count count';
-        gap: 0.2rem 1rem;
-        padding: 1rem 1.4rem;
+        position: relative;
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 48px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.8rem 1.6rem;
         background: linear-gradient(180deg, #ffd35e 0%, #ffb347 100%);
         color: #2c1d12;
         border: 0.3rem solid #d96a2c;
@@ -436,9 +465,7 @@ export class Hud {
         transition: transform 0.1s ease-out;
       }
 
-      .hud-summon:active {
-        transform: scale(0.97);
-      }
+      .hud-summon:active { transform: scale(0.97); }
 
       .hud-summon:disabled {
         opacity: 0.5;
@@ -449,25 +476,29 @@ export class Hud {
       }
 
       .hud-summon-label {
-        grid-area: label;
-        font-size: 2rem;
+        font-size: clamp(16px, 5vw, 22px);
         font-weight: 800;
-        text-align: left;
+        white-space: nowrap;
       }
 
       .hud-summon-cost {
-        grid-area: cost;
-        font-size: 1.5rem;
+        font-size: clamp(13px, 4vw, 17px);
         font-weight: 800;
-        text-align: right;
+        white-space: nowrap;
       }
 
+      /* 슬롯 카운트는 라벨 아래 작게 (소환 버튼 안 우측 상단 미니) */
       .hud-summon-count {
-        grid-area: count;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #5a3a0a;
-        text-align: center;
+        position: absolute;
+        top: -0.8rem;
+        right: 1.2rem;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--ink-2);
+        background: var(--bg-card);
+        padding: 0.1rem 0.6rem;
+        border-radius: var(--r-pill);
+        white-space: nowrap;
       }
 
       .hud-toast {
