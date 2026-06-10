@@ -7,7 +7,7 @@ import { registry, type Grade, type Unit } from 'systems/registry';
 const GRADE_COLOR: Record<Grade, number> = {
   common: 0x9aa5b1,
   rare: 0x4da3ff,
-  epic: 0x3dd68c,
+  epic: 0xe2553f,
   legendary: 0xb05cff,
   mythic_low: 0xffb020,
   mythic: 0xff4d8d,
