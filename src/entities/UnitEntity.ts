@@ -91,9 +91,10 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     label.setOrigin(0.5);
     this.add(label);
 
-    this.setSize(52, 56);
+    // 큰 hit 영역 (손가락 터치 안정)
+    this.setSize(76, 84);
     this.setInteractive({
-      hitArea: new Phaser.Geom.Rectangle(-26, -30, 52, 60),
+      hitArea: new Phaser.Geom.Rectangle(-38, -46, 76, 84),
       hitAreaCallback: Phaser.Geom.Rectangle.Contains,
       draggable: true,
       useHandCursor: true,

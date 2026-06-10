@@ -324,6 +324,7 @@ export class GameScene extends Phaser.Scene {
       const u = obj;
       u.setDepth(10);
       this.draggingUnit = null;
+      u.setRangeVisible(false);
       if (!this.dragMoved) return; // 안 움직였으면 선택만 (GAMEOBJECT_DOWN에서 처리)
       // 배치영역 clamp + 겹침 회피
       const c = this.clampToField(u.x, u.y);
@@ -332,8 +333,8 @@ export class GameScene extends Phaser.Scene {
         const free = this.findNearbyFree(u.x, u.y, u);
         u.setPosition(free.x, free.y);
       }
-      // 옮긴 유닛은 선택 상태 유지 (판매바 따라옴 위해 재선택)
-      this.selectUnit(u);
+      // 놓으면 하이라이트/판매바 해제
+      this.deselect();
     });
 
     // 빈 공간 탭 → 선택 해제

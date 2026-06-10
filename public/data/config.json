@@ -20,12 +20,12 @@
   "goldPerKillFlat": 1,
   "goldPerWaveClear": 30,
   "gradeWeights": {
-    "common": 45,
-    "rare": 28,
-    "epic": 15,
-    "legendary": 8,
-    "mythic_low": 3,
-    "mythic": 1
+    "common": 60,
+    "rare": 27,
+    "epic": 9,
+    "legendary": 3,
+    "mythic_low": 0.8,
+    "mythic": 0.2
   },
   "dmgByGrade": {
     "common": 8,
