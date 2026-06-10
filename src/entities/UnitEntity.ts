@@ -38,6 +38,13 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   splashFrac: number;
   cooldownLeft: number = 0;
   placed: boolean = false;
+  // 지원
+  readonly isSupport: boolean;
+  readonly supportKind: 'buff' | 'slow' | null;
+  // 외부(buffer)에서 받은 버프 배율 (매 프레임 GameScene이 설정)
+  atkBuffMul: number = 1;
+  spdBuffMul: number = 1;
+  private effectG: Phaser.GameObjects.Graphics | null = null;
 
   private base: Phaser.GameObjects.Container;
   private bodyG: Phaser.GameObjects.Graphics;
@@ -63,8 +70,18 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.projSize = st.projSize;
     this.splashRadius = st.splashRadius;
     this.splashFrac = st.splashFrac;
-    // 스윙 길이 = 공속 연동 (강타=느린 큰 스윙, 연타=짧고 빠름)
     this.swingDuration = Phaser.Math.Clamp(this.atkSpeed * 1000 * 0.55, 90, 340);
+
+    const roleCfg0 = registry.config.roles[def.role];
+    this.isSupport = !!roleCfg0.support;
+    this.supportKind = roleCfg0.support ?? null;
+
+    // 지원 효과 범위 원 (buffer 연두 / slower 파랑) — 항상 옅게 표시
+    if (this.isSupport) {
+      this.effectG = scene.add.graphics();
+      this.add(this.effectG);
+      this.drawSupportArea();
+    }
 
     this.rangeG = scene.add.graphics();
     this.add(this.rangeG);
@@ -171,7 +188,40 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     g.fillCircle(-3, -20, 1.4);
     g.fillCircle(3, -20, 1.4);
 
+    // 지원유닛: 배트 대신 클립보드 (공격 안 함)
+    if (this.isSupport) {
+      g.fillStyle(0xfffaf2, 1);
+      g.lineStyle(1.5, 0x4d2e10, 1);
+      g.fillRoundedRect(8, -8, 12, 16, 2);
+      g.strokeRoundedRect(8, -8, 12, 16, 2);
+      g.lineStyle(1, 0x9aa5b1, 1);
+      g.beginPath(); g.moveTo(10, -4); g.lineTo(18, -4); g.moveTo(10, 0); g.lineTo(18, 0); g.moveTo(10, 4); g.lineTo(16, 4); g.strokePath();
+      return;
+    }
+
     this.drawBat();
+  }
+
+  private drawSupportArea(): void {
+    if (!this.effectG) return;
+    const g = this.effectG;
+    g.clear();
+    const eff = this.supportKind === 'buff'
+      ? registry.bufferEffect(this.def.grade)
+      : registry.slowerEffect(this.def.grade);
+    const r = eff.radius;
+    const color = this.supportKind === 'buff' ? 0x3dd68c : 0x4da3ff;
+    g.fillStyle(color, 0.06);
+    g.fillCircle(0, 0, r);
+    g.lineStyle(1.5, color, 0.35);
+    g.strokeCircle(0, 0, r);
+  }
+
+  supportRadius(): number {
+    const eff = this.supportKind === 'buff'
+      ? registry.bufferEffect(this.def.grade)
+      : registry.slowerEffect(this.def.grade);
+    return eff.radius;
   }
 
   private drawBat(): void {

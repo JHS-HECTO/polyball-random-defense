@@ -185,6 +185,30 @@
       "projSize": 7,
       "label": "저격",
       "badge": "🎯"
+    },
+    "buffer": {
+      "atkMul": 0,
+      "spdMul": 1.0,
+      "rangeMul": 1.0,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 0,
+      "projSize": 0,
+      "label": "코치",
+      "badge": "📋",
+      "support": "buff"
+    },
+    "slower": {
+      "atkMul": 0,
+      "spdMul": 1.0,
+      "rangeMul": 1.0,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 0,
+      "projSize": 0,
+      "label": "투코",
+      "badge": "🧊",
+      "support": "slow"
     }
   },
   "gradeMultiplier": {
@@ -213,5 +237,84 @@
   },
   "waveSpikeFrom": 11,
   "waveSpikeHpMult": 1.34,
-  "waveSpikeSpeedAdd": 3.0
+  "waveSpikeSpeedAdd": 3.0,
+  "enemyTypes": {
+    "normal": {
+      "hpMul": 1.0,
+      "spdMul": 1.0,
+      "dmgReduction": 0,
+      "badge": ""
+    },
+    "runner": {
+      "hpMul": 0.55,
+      "spdMul": 2.2,
+      "dmgReduction": 0,
+      "badge": "💨"
+    },
+    "armored": {
+      "hpMul": 3.0,
+      "spdMul": 0.7,
+      "dmgReduction": 0.3,
+      "badge": "🛡"
+    },
+    "splitter": {
+      "hpMul": 1.0,
+      "spdMul": 1.0,
+      "dmgReduction": 0,
+      "childCount": 2,
+      "childHpMul": 0.4,
+      "badge": "🔱"
+    },
+    "healer": {
+      "hpMul": 0.9,
+      "spdMul": 0.9,
+      "dmgReduction": 0,
+      "healPerSec": 10,
+      "healRadius": 95,
+      "badge": "➕"
+    }
+  },
+  "enemyTypeWeights": {
+    "normal": {
+      "base": 100,
+      "perWave": -3.0,
+      "min": 25,
+      "from": 1
+    },
+    "runner": {
+      "base": 0,
+      "perWave": 1.4,
+      "from": 3
+    },
+    "armored": {
+      "base": 0,
+      "perWave": 1.1,
+      "from": 5
+    },
+    "splitter": {
+      "base": 0,
+      "perWave": 0.9,
+      "from": 7
+    },
+    "healer": {
+      "base": 0,
+      "perWave": 0.6,
+      "from": 9
+    }
+  },
+  "support": {
+    "buffRadiusBase": 90,
+    "buffRadiusPerGrade": 14,
+    "buffAtkPctBase": 0.15,
+    "buffAtkPctPerGrade": 0.07,
+    "buffSpdPctBase": 0.1,
+    "buffSpdPctPerGrade": 0.05,
+    "buffCap": 1.5,
+    "slowRadiusBase": 100,
+    "slowRadiusPerGrade": 12,
+    "slowPctBase": 0.2,
+    "slowPctPerGrade": 0.06,
+    "slowPctCap": 0.6,
+    "supportSummonWeightMul": 0.6
+  }
 }

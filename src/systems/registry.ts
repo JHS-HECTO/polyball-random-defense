@@ -5,7 +5,7 @@ import Phaser from 'phaser';
 
 export type Grade = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic_low' | 'mythic';
 export type Element = 'fire' | 'water' | 'wind' | 'earth' | 'light' | 'dark';
-export type Role = 'contact' | 'slugger' | 'speedster' | 'splasher' | 'sniper';
+export type Role = 'contact' | 'slugger' | 'speedster' | 'splasher' | 'sniper' | 'buffer' | 'slower';
 
 export type RoleCfg = {
   atkMul: number;
@@ -17,6 +17,7 @@ export type RoleCfg = {
   projSize: number;
   label: string;
   badge: string;
+  support?: 'buff' | 'slow';
 };
 
 export type Unit = {
@@ -43,6 +44,19 @@ export type ResolvedStats = {
   splashFrac: number;
   projSpeed: number;
   projSize: number;
+};
+
+export type EnemyKind = 'normal' | 'runner' | 'armored' | 'splitter' | 'healer';
+
+export type EnemyTypeCfg = {
+  hpMul: number;
+  spdMul: number;
+  dmgReduction: number;
+  badge: string;
+  childCount?: number;
+  childHpMul?: number;
+  healPerSec?: number;
+  healRadius?: number;
 };
 
 export type Enemy = {
@@ -90,6 +104,8 @@ export type GameConfig = {
   bossEveryNWaves: number;
   berserkEveryNWaves: number;
   bossHpMultiplier: number;
+  enemyTypes: Record<EnemyKind, EnemyTypeCfg>;
+  enemyTypeWeights: Record<EnemyKind, { base: number; perWave: number; from: number; min?: number }>;
   gameOverMobCount: number;
   sellRatio: number;
   sellByGrade: Record<Grade, number>;
@@ -99,6 +115,21 @@ export type GameConfig = {
   bossHpPerBoss: number;
   gradeLabels: Record<Grade, string>;
   gradeColors: Record<Grade, string>;
+  support: {
+    buffRadiusBase: number;
+    buffRadiusPerGrade: number;
+    buffAtkPctBase: number;
+    buffAtkPctPerGrade: number;
+    buffSpdPctBase: number;
+    buffSpdPctPerGrade: number;
+    buffCap: number;
+    slowRadiusBase: number;
+    slowRadiusPerGrade: number;
+    slowPctBase: number;
+    slowPctPerGrade: number;
+    slowPctCap: number;
+    supportSummonWeightMul: number;
+  };
   anim: {
     idleBobAmp: number;
     idleBobPeriodMs: number;
@@ -211,8 +242,49 @@ class Registry {
       }
     }
     const pool = this.units.filter((u) => u.grade === pickedGrade);
-    const idx = Math.floor(Math.random() * pool.length);
-    return pool[idx] ?? this.units[0]!;
+    // 지원유닛(buffer/slower)은 가중치 낮게
+    const supMul = this.config.support.supportSummonWeightMul;
+    const weighted: Array<{ u: Unit; w: number }> = pool.map((u) => ({
+      u,
+      w: this.config.roles[u.role].support ? supMul : 1,
+    }));
+    const wt = weighted.reduce((a, b) => a + b.w, 0);
+    let rr = Math.random() * wt;
+    for (const it of weighted) {
+      rr -= it.w;
+      if (rr <= 0) return it.u;
+    }
+    return pool[0] ?? this.units[0]!;
+  }
+
+  isSupport(u: Unit): boolean {
+    return !!this.config.roles[u.role].support;
+  }
+
+  // 등급 인덱스 (0~5)
+  private gradeIdx(g: Grade): number {
+    return this.gradeOrder().indexOf(g);
+  }
+
+  // buffer 효과 (등급 강화)
+  bufferEffect(g: Grade): { radius: number; atkPct: number; spdPct: number } {
+    const s = this.config.support;
+    const gi = this.gradeIdx(g);
+    return {
+      radius: s.buffRadiusBase + s.buffRadiusPerGrade * gi,
+      atkPct: s.buffAtkPctBase + s.buffAtkPctPerGrade * gi,
+      spdPct: s.buffSpdPctBase + s.buffSpdPctPerGrade * gi,
+    };
+  }
+
+  // slower 효과
+  slowerEffect(g: Grade): { radius: number; slowPct: number } {
+    const s = this.config.support;
+    const gi = this.gradeIdx(g);
+    return {
+      radius: s.slowRadiusBase + s.slowRadiusPerGrade * gi,
+      slowPct: Math.min(s.slowPctCap, s.slowPctBase + s.slowPctPerGrade * gi),
+    };
   }
 
   // 소환 비용 — 고정 50 (config.summonCostFixed)
@@ -222,6 +294,24 @@ class Registry {
 
   gradeOrder(): Grade[] {
     return ['common', 'rare', 'epic', 'legendary', 'mythic_low', 'mythic'];
+  }
+
+  // 웨이브별 특수 적 유형 가중 랜덤
+  pickEnemyKind(wave: number): EnemyKind {
+    const kinds: EnemyKind[] = ['normal', 'runner', 'armored', 'splitter', 'healer'];
+    const weights = kinds.map((k) => {
+      const w = this.config.enemyTypeWeights[k];
+      if (wave < w.from) return 0;
+      const val = w.base + w.perWave * wave;
+      return Math.max(w.min ?? 0, val);
+    });
+    const total = weights.reduce((a, b) => a + b, 0);
+    let r = Math.random() * total;
+    for (let i = 0; i < kinds.length; i += 1) {
+      r -= weights[i]!;
+      if (r <= 0) return kinds[i]!;
+    }
+    return 'normal';
   }
 
   // 등급 × 역할 최종 스탯

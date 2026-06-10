@@ -89,11 +89,13 @@ export class GameScene extends Phaser.Scene {
     if (this.isGameOver) return;
     const dt = delta / 1000;
 
-    // 유닛 idle + 전투
+    // 유닛 idle + 전투 (지원유닛은 공격 안 함)
     for (const u of this.units) {
       if (u === this.draggingUnit) continue;
       u.tickIdle(time, delta);
-      u.cooldownLeft -= delta;
+      if (u.isSupport) continue;
+      // buffer 공속 버프 반영
+      u.cooldownLeft -= delta * u.spdBuffMul;
       if (u.cooldownLeft <= 0) {
         const target = this.pickTarget(u);
         if (target) {
@@ -102,6 +104,9 @@ export class GameScene extends Phaser.Scene {
         }
       }
     }
+
+    // 지원 유닛 효과 적용 (buff/slow) — 매 프레임 재계산
+    this.applySupportEffects();
 
     // 적 트랙 순환
     for (const e of this.enemies) {
@@ -112,8 +117,11 @@ export class GameScene extends Phaser.Scene {
       const p2 = this.track.getPoint((t + 0.01) % 1);
       const heading = Math.atan2(p2.y - p.y, p2.x - p.x);
       e.applyTrackTransform(p.x, p.y, heading, time);
-      e.tick(delta);
+      e.tick(delta, time);
     }
+
+    // healer 회복 (주변 적 hp 회복)
+    this.applyHealers(dt);
 
     this.projectiles.update(delta);
 
@@ -392,6 +400,65 @@ export class GameScene extends Phaser.Scene {
     this.publishHud();
   }
 
+  // ─── 지원 효과 (buffer/slower) ───────────────────────────────
+
+  private applySupportEffects(): void {
+    // 1) buffer → 범위 내 공격유닛 atk/spd 버프 (합연산, cap)
+    const buffers = this.units.filter((u) => u.supportKind === 'buff');
+    const slowers = this.units.filter((u) => u.supportKind === 'slow');
+    const cap = registry.config.support.buffCap;
+
+    for (const u of this.units) {
+      if (u.isSupport) continue;
+      let atkM = 1;
+      let spdM = 1;
+      for (const b of buffers) {
+        const eff = registry.bufferEffect(b.def.grade);
+        const dx = b.x - u.x;
+        const dy = b.y - u.y;
+        if (dx * dx + dy * dy <= eff.radius * eff.radius) {
+          atkM += eff.atkPct;
+          spdM += eff.spdPct;
+        }
+      }
+      u.atkBuffMul = Math.min(cap, atkM);
+      u.spdBuffMul = Math.min(cap, spdM);
+    }
+
+    // 2) slower → 범위 내 적 둔화 (가장 강한 1개만)
+    for (const e of this.enemies) {
+      if (!e.alive) continue;
+      let maxSlow = 0;
+      for (const s of slowers) {
+        const eff = registry.slowerEffect(s.def.grade);
+        const dx = s.x - e.x;
+        const dy = s.y - e.y;
+        if (dx * dx + dy * dy <= eff.radius * eff.radius) {
+          if (eff.slowPct > maxSlow) maxSlow = eff.slowPct;
+        }
+      }
+      if (maxSlow > 0) e.applySlow(maxSlow);
+      else e.clearSlow();
+    }
+  }
+
+  private applyHealers(dtSec: number): void {
+    const healers = this.enemies.filter((e) => e.alive && e.kind === 'healer');
+    if (healers.length === 0) return;
+    const cfg = registry.config.enemyTypes.healer;
+    const radius = cfg.healRadius ?? 90;
+    const heal = (cfg.healPerSec ?? 10) * dtSec;
+    const r2 = radius * radius;
+    for (const h of healers) {
+      for (const e of this.enemies) {
+        if (!e.alive || e === h) continue;
+        const dx = h.x - e.x;
+        const dy = h.y - e.y;
+        if (dx * dx + dy * dy <= r2) e.heal(heal);
+      }
+    }
+  }
+
   // ─── 전투 ───────────────────────────────
 
   private pickTarget(u: UnitEntity): EnemyEntity | null {
@@ -414,7 +481,7 @@ export class GameScene extends Phaser.Scene {
   private unitAttack(u: UnitEntity, target: EnemyEntity): void {
     u.playAttack(target.x, target.y);
     const mult = registry.elementMultiplier(u.def.element, target.def.element);
-    const dmg = Math.round(u.atk * mult);
+    const dmg = Math.round(u.atk * u.atkBuffMul * mult);
     const eid = target.eid;
     const splashR = u.splashRadius;
     const splashFrac = u.splashFrac;
@@ -513,6 +580,16 @@ export class GameScene extends Phaser.Scene {
     this.state.earn(registry.config.goldPerKillFlat);
     this.state.addScore(e.isBoss ? 500 : 25);
     this.spawnCoin(e.x, e.y);
+    // splitter 분열 — 죽을 때 작은 적 2마리
+    if (e.kind === 'splitter') {
+      const tc = registry.config.enemyTypes.splitter;
+      const n = tc.childCount ?? 2;
+      const childHp = Math.max(1, Math.round(e.hpMax * (tc.childHpMul ?? 0.4)));
+      for (let i = 0; i < n; i += 1) {
+        const child = new EnemyEntity(this, e.x, e.y, e.def, childHp, e.baseSpeed * 1.2, e.trackDist + (i - 0.5) * 30, 'normal');
+        this.enemies.push(child);
+      }
+    }
     e.playDeath(() => {});
     // 보스 처치 → 일시정지 + 응모권 팝업
     if (e.isBoss && this.bossActive && e === this.bossRef) {
@@ -625,14 +702,17 @@ export class GameScene extends Phaser.Scene {
     if (wave > cfg.waveSpikeFrom - 1) {
       hp *= Math.pow(cfg.waveSpikeHpMult, wave - (cfg.waveSpikeFrom - 1));
     }
-    hp = Math.round(hp);
     let speed = cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1);
     if (wave >= cfg.waveSpikeFrom) speed += cfg.waveSpikeSpeedAdd * (wave - cfg.waveSpikeFrom + 1);
-    speed = Math.min(cfg.mobSpeed.maxSpeed, speed);
+    // 특수 적 유형 (웨이브별 가중)
+    const kind = registry.pickEnemyKind(wave);
+    const tc = cfg.enemyTypes[kind];
+    hp = Math.round(hp * tc.hpMul);
+    speed = Math.min(cfg.mobSpeed.maxSpeed, speed * tc.spdMul);
     if (isBerserk) speed = Math.min(cfg.mobSpeed.maxSpeed, speed * cfg.mobSpeed.berserkMult);
 
     const start = this.track.getPoint(0);
-    const e = new EnemyEntity(this, start.x, start.y, def, hp, speed, 0);
+    const e = new EnemyEntity(this, start.x, start.y, def, hp, speed, 0, kind);
     this.enemies.push(e);
   }
 
