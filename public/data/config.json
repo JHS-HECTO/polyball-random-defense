@@ -130,6 +130,14 @@
     "mythic_low": 900,
     "mythic": 2500
   },
+  "gradeSizeMul": {
+    "common": 1.0,
+    "rare": 1.12,
+    "epic": 1.24,
+    "legendary": 1.38,
+    "mythic_low": 1.52,
+    "mythic": 1.7
+  },
   "upgrade": {
     "baseCost": 35,
     "costGrowth": 1.5,

@@ -59,6 +59,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   private swingMs = 0;
   private swingDuration = 200;
   private usesSprite = false;
+  private gradeScale = 1; // 등급별 캐릭 크기 배수
 
   constructor(scene: Phaser.Scene, x: number, y: number, def: Unit, summonPrice: number) {
     super(scene, x, y);
@@ -66,6 +67,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.def = def;
     this.summonPrice = summonPrice;
     this.idleSeed = Math.random() * Math.PI * 2;
+    this.gradeScale = registry.config.gradeSizeMul[def.grade] ?? 1;
 
     const st = registry.resolveStats(def);
     this.atk = st.atk;
@@ -120,6 +122,8 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     } else {
       this.drawCharacter();
     }
+    // 등급별 크기 (높은 등급일수록 큼)
+    this.base.setScale(this.gradeScale);
 
     // 등급 라벨 (하단)
     const label = scene.add.text(0, 24, GRADE_LABEL[def.grade], {
@@ -291,7 +295,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
 
   setSelected(v: boolean): void {
     this.setRangeVisible(v);
-    this.base.setScale(v ? 1.15 : 1);
+    this.base.setScale(v ? this.gradeScale * 1.15 : this.gradeScale);
     // 선택 하이라이트 링 (흰 글로우)
     const gl = this.glowG;
     if (v) {
@@ -326,7 +330,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   playSpawn(): void {
     const a = registry.config.anim;
     this.base.setScale(0);
-    this.scene.tweens.add({ targets: this.base, scaleX: 1, scaleY: 1, duration: a.summonPopInMs, ease: 'Back.easeOut' });
+    this.scene.tweens.add({ targets: this.base, scaleX: this.gradeScale, scaleY: this.gradeScale, duration: a.summonPopInMs, ease: 'Back.easeOut' });
   }
 
   tickIdle(timeMs: number, deltaMs: number): void {
@@ -372,8 +376,8 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.updateLevelLabel();
     this.scene.tweens.add({
       targets: this.base,
-      scaleX: 1.28,
-      scaleY: 1.28,
+      scaleX: this.gradeScale * 1.28,
+      scaleY: this.gradeScale * 1.28,
       yoyo: true,
       duration: 130,
       ease: 'Quad.easeOut',

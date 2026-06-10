@@ -110,6 +110,7 @@ export type GameConfig = {
   gameOverMobCount: number;
   sellRatio: number;
   sellByGrade: Record<Grade, number>;
+  gradeSizeMul: Record<Grade, number>;
   upgrade: {
     baseCost: number;
     costGrowth: number;
