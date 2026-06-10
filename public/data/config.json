@@ -7,7 +7,7 @@
   "summonCostFixed": 50,
   "rerollCost": 30,
   "maxUnits": 20,
-  "startGold": 300,
+  "startGold": 200,
   "goldPerKill": {
     "common": 1,
     "rare": 1,
@@ -60,17 +60,17 @@
     "mythic": 900
   },
   "mobHpByWave": {
-    "base": 14,
-    "perWaveMult": 1.22,
+    "base": 16,
+    "perWaveMult": 1.28,
     "bossMult": 14
   },
   "mobSpeed": {
-    "base": 30,
-    "perWaveAdd": 2.2,
+    "base": 34,
+    "perWaveAdd": 3.2,
     "berserkMult": 1.5,
-    "maxSpeed": 140
+    "maxSpeed": 160
   },
-  "mobsPerWave": 55,
+  "mobsPerWave": 75,
   "bossEveryNWaves": 10,
   "berserkEveryNWaves": 5,
   "bossHpMultiplier": 14,
@@ -242,9 +242,9 @@
     "mythic_low": 1.22,
     "mythic": 1.3
   },
-  "waveSpikeFrom": 8,
-  "waveSpikeHpMult": 1.4,
-  "waveSpikeSpeedAdd": 3.0,
+  "waveSpikeFrom": 7,
+  "waveSpikeHpMult": 1.42,
+  "waveSpikeSpeedAdd": 4.0,
   "enemyTypes": {
     "normal": {
       "hpMul": 1.0,
