@@ -56,6 +56,42 @@ export class Hud {
   }
 
   private sellBarEl: HTMLDivElement | null = null;
+  private ticketPopupEl: HTMLDivElement | null = null;
+
+  // 보스 처치 응모권 팝업. 딤(배경) 클릭은 무시, '받기' 버튼만 닫힘.
+  showTicketPopup(wave: number, onClaim: () => void): void {
+    if (this.ticketPopupEl) return;
+    const dim = document.createElement('div');
+    dim.className = 'hud-ticket-dim';
+    dim.innerHTML = `
+      <div class="hud-ticket-card">
+        <div class="hud-ticket-emoji">🎟</div>
+        <div class="hud-ticket-title">보스 처치 보상!</div>
+        <div class="hud-ticket-sub">웨이브 ${wave} 클리어<br>응모권 <b>1장</b> 획득</div>
+        <button class="hud-ticket-btn" type="button">받기</button>
+      </div>
+    `;
+    // 딤 클릭 차단 (버블 막고 아무 동작 안함)
+    dim.addEventListener('pointerdown', (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+    });
+    const btn = dim.querySelector('.hud-ticket-btn') as HTMLButtonElement;
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      this.hideTicketPopup();
+      onClaim();
+    });
+    this.root.appendChild(dim);
+    this.ticketPopupEl = dim;
+  }
+
+  private hideTicketPopup(): void {
+    if (this.ticketPopupEl) {
+      this.ticketPopupEl.remove();
+      this.ticketPopupEl = null;
+    }
+  }
 
   showSellBar(title: string, refund: number, onSell: () => void): void {
     this.hideSellBar();
@@ -175,6 +211,7 @@ export class Hud {
 
   destroy(): void {
     this.sellBarEl = null;
+    this.ticketPopupEl = null;
     this.root.innerHTML = '';
     this.elements = null;
   }
@@ -507,6 +544,70 @@ export class Hud {
         opacity: 1;
         transform: translate(-50%, 0);
       }
+
+      /* 보스 처치 응모권 팝업 (딤 클릭 무시) */
+      .hud-ticket-dim {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(10, 13, 20, 0.78);
+        animation: hud-ticket-fade 0.2s ease-out;
+      }
+      @keyframes hud-ticket-fade { from { opacity: 0; } to { opacity: 1; } }
+      .hud-ticket-card {
+        width: 78%;
+        max-width: 320px;
+        padding: 28px 24px 24px;
+        background: var(--bg-card);
+        border: 2px solid var(--accent);
+        border-radius: var(--r-lg);
+        box-shadow: 0 0 32px rgba(255, 138, 61, 0.4), var(--shadow-2);
+        text-align: center;
+        animation: hud-ticket-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      @keyframes hud-ticket-pop {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+      .hud-ticket-emoji {
+        font-size: 56px;
+        line-height: 1;
+        margin-bottom: 8px;
+        animation: hud-ticket-bounce 0.6s ease-in-out infinite alternate;
+      }
+      @keyframes hud-ticket-bounce {
+        from { transform: translateY(0) rotate(-6deg); }
+        to { transform: translateY(-6px) rotate(6deg); }
+      }
+      .hud-ticket-title {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+      .hud-ticket-sub {
+        font-size: 15px;
+        color: var(--ink-2);
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .hud-ticket-sub b { color: var(--gold); font-size: 18px; }
+      .hud-ticket-btn {
+        width: 100%;
+        min-height: 52px;
+        background: linear-gradient(180deg, #ff9a55 0%, #ff8a3d 100%);
+        color: #fff;
+        border: 0;
+        border-radius: var(--r-md);
+        font-family: inherit;
+        font-size: 19px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .hud-ticket-btn:active { transform: scale(0.97); }
     `;
     document.head.appendChild(style);
   }

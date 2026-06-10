@@ -467,16 +467,36 @@ export class GameScene extends Phaser.Scene {
     this.state.addScore(e.isBoss ? 500 : 25);
     this.spawnCoin(e.x, e.y);
     e.playDeath(() => {});
-    // 보스 처치 → 보스전 종료 → 다음 웨이브
+    // 보스 처치 → 일시정지 + 응모권 팝업
     if (e.isBoss && this.bossActive && e === this.bossRef) {
       this.bossActive = false;
       this.bossRef = null;
       this.state.earn(50 + this.state.wave * 5);
       this.state.addScore(1000);
-      this.hud.flashMessage('보스 처치! 클리어');
-      this.time.delayedCall(900, () => {
-        if (!this.isGameOver) this.startWave(this.state.wave + 1);
-      });
+      this.onBossDefeated();
+    }
+  }
+
+  // 보스 처치 시: 게임 멈춤 + 응모권 1장 지급 팝업 (딤 클릭 무시)
+  private onBossDefeated(): void {
+    this.deselect();
+    this.scene.pause();
+    // 폴리볼 부모앱에 응모권 청구 (prefix DEF:)
+    this.claimTicket();
+    this.hud.showTicketPopup(this.state.wave, () => {
+      this.scene.resume();
+      if (!this.isGameOver) this.startWave(this.state.wave + 1);
+    });
+  }
+
+  // 폴리볼 postMessage 브리지 (없으면 무시)
+  private claimTicket(): void {
+    try {
+      const w = window as unknown as { parent?: Window };
+      const payload = { type: 'DEF:CLAIM_TICKET', source: 'boss_kill', adWatched: false, wave: this.state.wave };
+      w.parent?.postMessage(payload, '*');
+    } catch {
+      /* standalone — 무시 */
     }
   }
 
