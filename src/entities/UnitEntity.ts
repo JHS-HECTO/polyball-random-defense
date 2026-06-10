@@ -113,7 +113,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     if (scene.textures.exists(def.id)) {
       this.usesSprite = true;
       const img = scene.add.image(0, 0, def.id);
-      const targetH = 68; // 유닛 표시 높이 (px)
+      const targetH = 90; // 유닛 표시 높이 (px)
       img.setScale(targetH / img.height);
       img.setOrigin(0.5, 0.6); // 발이 그림자 근처에 오도록
       this.base.add(img);
