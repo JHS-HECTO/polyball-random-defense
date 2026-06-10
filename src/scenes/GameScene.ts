@@ -330,8 +330,8 @@ export class GameScene extends Phaser.Scene {
     this.input.on(Phaser.Input.Events.DRAG, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject, x: number, y: number) => {
       if (!(obj instanceof UnitEntity)) return;
       this.dragMoved = true;
-      const c = this.clampToField(x, y);
-      obj.setPosition(c.x, c.y);
+      // 드래그 중엔 손가락 그대로 따라옴 (clamp 안함) → 위/구석 배치 자연스러움
+      obj.setPosition(x, y);
     });
 
     this.input.on(Phaser.Input.Events.DRAG_END, (_p: Phaser.Input.Pointer, obj: Phaser.GameObjects.GameObject) => {
@@ -351,10 +351,11 @@ export class GameScene extends Phaser.Scene {
         return;
       }
 
-      // 배치 — 겹침 체크
+      // 배치 — 배치영역(트랙 안쪽)으로 clamp + 겹침 체크
       u.setRangeVisible(false);
+      const c = this.clampToField(u.x, u.y);
+      u.setPosition(c.x, c.y);
       if (this.overlapsUnit(u.x, u.y, u)) {
-        // 가까운 빈 자리로 밀기
         const free = this.findNearbyFree(u.x, u.y, u);
         u.setPosition(free.x, free.y);
       }
@@ -547,7 +548,14 @@ export class GameScene extends Phaser.Scene {
     const isBoss = wave % cfg.bossEveryNWaves === 0;
 
     if (isBoss) {
-      // 보스전 진입 — 보스 1마리, 제한시간 카운트다운
+      // 보스전 진입 — 일반몹 전부 제거, 보스 1마리만 등장
+      for (const e of this.enemies) {
+        if (e.alive) {
+          e.alive = false;
+          e.playDeath(() => {});
+        }
+      }
+      this.enemies = [];
       this.bossActive = true;
       this.bossTimeLeft = cfg.bossTimeLimitMs;
       this.waveTimeLeft = cfg.bossTimeLimitMs;
