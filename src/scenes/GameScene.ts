@@ -155,9 +155,10 @@ export class GameScene extends Phaser.Scene {
   // ─── 그리기 ───────────────────────────────
 
   private drawBackground(): void {
+    // 캔버스 전체 타일 (가장자리 dark 방지)
     const size = 64;
-    for (let y = FIELD.top; y < FIELD.bottom; y += size) {
-      for (let x = FIELD.left; x < FIELD.right; x += size) {
+    for (let y = 0; y < GAME_HEIGHT; y += size) {
+      for (let x = 0; x < GAME_WIDTH; x += size) {
         this.add.image(x, y, 'tile-grass').setOrigin(0, 0).setDepth(0);
       }
     }

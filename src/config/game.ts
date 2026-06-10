@@ -1,6 +1,6 @@
 // 게임 캔버스/필드 베이스 상수. 밸런싱은 별도 config.json.
 export const GAME_WIDTH = 540;
-export const GAME_HEIGHT = 960; // 9:16
+export const GAME_HEIGHT = 1200; // 9:20 — 현대 세로폰 비율에 맞춤(FIT letterbox 최소화)
 
 // HUD 점유 높이 + 하단 패널
 export const TOP_HUD_HEIGHT = 140;
@@ -23,11 +23,11 @@ export const BASE_RADIUS = 44;
 // 순환 트랙 — 본거지를 감싸는 사각 링 (닫힌 루프). 적이 따라 돈다.
 // 시계방향 waypoint. 모서리 라운드는 시각만, 이동은 직선 보간.
 export const TRACK = {
-  left: 70,
-  right: GAME_WIDTH - 70,   // 470
-  top: 210,                 // HUD 바로 아래까지 끌어올림
-  bottom: 810,              // 하단 독 바로 위까지 확장 → 세로로 크게
-  corner: 44,               // 모서리 라운드 반경 (시각)
+  left: 65,
+  right: GAME_WIDTH - 65,   // 475
+  top: 250,                 // HUD 바로 아래 (디자인 9:20 기준)
+  bottom: 1010,             // 하단 독 바로 위까지 → 세로 가득
+  corner: 46,               // 모서리 라운드 반경 (시각)
 } as const;
 
 // waypoint 닫힌 루프 (시계방향, 좌상 시작)

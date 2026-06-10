@@ -75,8 +75,8 @@ button {
 
 #game-frame {
   position: relative;
-  /* 뷰포트 꽉 채움. Phaser ENVELOP가 540×960 디자인 비율 유지하며 빈 여백만 crop.
-     → letterbox(검은 띠) 제거, 게임이 화면 위아래로 꽉 차게 보임. */
+  /* 뷰포트 꽉 채움. Phaser FIT가 540×1200(9:20) 디자인을 안에 맞춤(센터링).
+     9:20 세로폰에선 letterbox 거의 0, 남는 작은 띠는 DOM HUD가 덮음. */
   width: 100vw;
   height: 100dvh;
   background: var(--bg-frame);
@@ -93,7 +93,7 @@ button {
   touch-action: none;
   overflow: hidden;
 }
-/* Phaser(ENVELOP)가 canvas 크기/센터링(margin) 제어 — flex/100% 강제 금지(중복센터·왜곡 방지). */
+/* Phaser(FIT)가 canvas 크기/센터링(margin) 제어 — flex/100% 강제 금지(중복센터·왜곡 방지). */
 #game-canvas canvas {
   display: block;
   touch-action: none;

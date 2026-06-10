@@ -12,9 +12,9 @@ const config: Phaser.Types.Core.GameConfig = {
   height: GAME_HEIGHT,
   backgroundColor: '#0e131c',
   scale: {
-    // ENVELOP: 캔버스가 뷰포트를 꽉 채우도록 스케일(letterbox 제거).
-    // 540×960 디자인의 빈 좌우/상하 여백만 crop, 중앙 트랙은 유지.
-    mode: Phaser.Scale.ENVELOP,
+    // FIT: 540×1200(9:20) 디자인 전체를 항상 표시(crop 없음 → 트랙 안 잘림).
+    // 9:20 세로폰에선 letterbox 거의 0. 가장자리 작은 띠는 DOM HUD가 덮음.
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   physics: {
