@@ -6,7 +6,7 @@
   },
   "summonCostFixed": 50,
   "rerollCost": 30,
-  "maxUnits": 18,
+  "maxUnits": 20,
   "startGold": 300,
   "goldPerKill": {
     "common": 1,
@@ -20,12 +20,12 @@
   "goldPerKillFlat": 1,
   "goldPerWaveClear": 30,
   "gradeWeights": {
-    "common": 60,
-    "rare": 27,
-    "epic": 9,
-    "legendary": 3,
-    "mythic_low": 0.8,
-    "mythic": 0.2
+    "common": 72,
+    "rare": 22,
+    "epic": 4.5,
+    "legendary": 1.2,
+    "mythic_low": 0.25,
+    "mythic": 0.05
   },
   "dmgByGrade": {
     "common": 8,
@@ -61,13 +61,14 @@
   },
   "mobHpByWave": {
     "base": 12,
-    "perWaveMult": 1.13,
+    "perWaveMult": 1.2,
     "bossMult": 14
   },
   "mobSpeed": {
     "base": 30,
-    "perWaveAdd": 1.2,
-    "berserkMult": 1.4
+    "perWaveAdd": 2.2,
+    "berserkMult": 1.5,
+    "maxSpeed": 140
   },
   "mobsPerWave": 40,
   "bossEveryNWaves": 10,

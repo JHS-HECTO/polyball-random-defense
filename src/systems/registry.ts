@@ -56,7 +56,7 @@ export type GameConfig = {
   rangeByGrade: Record<Grade, number>;
   projectileSpeedByGrade: Record<Grade, number>;
   mobHpByWave: { base: number; perWaveMult: number; bossMult: number };
-  mobSpeed: { base: number; perWaveAdd: number; berserkMult: number };
+  mobSpeed: { base: number; perWaveAdd: number; berserkMult: number; maxSpeed: number };
   mobsPerWave: number;
   bossEveryNWaves: number;
   berserkEveryNWaves: number;

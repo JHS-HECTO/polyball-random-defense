@@ -554,8 +554,8 @@ export class GameScene extends Phaser.Scene {
     const mobs = registry.enemies.filter((e) => !e.isBoss);
     const def = mobs[Math.floor(Math.random() * mobs.length)]!;
     const hp = Math.round(cfg.mobHpByWave.base * Math.pow(cfg.mobHpByWave.perWaveMult, wave - 1));
-    let speed = cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1);
-    if (isBerserk) speed *= cfg.mobSpeed.berserkMult;
+    let speed = Math.min(cfg.mobSpeed.maxSpeed, cfg.mobSpeed.base + cfg.mobSpeed.perWaveAdd * (wave - 1));
+    if (isBerserk) speed = Math.min(cfg.mobSpeed.maxSpeed, speed * cfg.mobSpeed.berserkMult);
 
     const start = this.track.getPoint(0);
     const e = new EnemyEntity(this, start.x, start.y, def, hp, speed, 0);
