@@ -3,11 +3,11 @@ import { PNG } from 'pngjs';
 
 const ROOT = 'public/data';
 
-// 배경 판정: 무채색 + 밝음 (생성기가 박은 체커 218/255)
+// 배경 판정: 무채색 회색(체커 밝기 ~95~255, 이미지마다 다름). 캐릭은 채도높음/검은외곽선(mn<90).
 const isBg = (d, i) => {
   const r = d[i], g = d[i + 1], b = d[i + 2];
   const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
-  return mx - mn < 16 && mn > 198;
+  return mx - mn < 30 && mn > 95;
 };
 
 function process(srcPath, dstPath, { strip, size }) {
