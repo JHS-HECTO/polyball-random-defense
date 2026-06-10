@@ -55,12 +55,14 @@ export class BootScene extends Phaser.Scene {
     // 누락 파일은 loaderror로 무시 — 'complete'는 에러와 무관하게 발생.
     this.load.off('loaderror');
     this.load.on('loaderror', () => {/* 누락 스프라이트 무시 (placeholder 사용) */});
+    // 캐시버스트 — 이미지 재가공 시 v 올리면 브라우저/CDN 옛 캐시 무시
+    const V = '?v=4';
     let queued = 0;
     for (const u of registry.units) {
-      if (!this.textures.exists(u.id)) { this.load.image(u.id, `data/${u.sprite}`); queued += 1; }
+      if (!this.textures.exists(u.id)) { this.load.image(u.id, `data/${u.sprite}${V}`); queued += 1; }
     }
     for (const en of registry.enemies) {
-      if (!this.textures.exists(en.id)) { this.load.image(en.id, `data/${en.sprite}`); queued += 1; }
+      if (!this.textures.exists(en.id)) { this.load.image(en.id, `data/${en.sprite}${V}`); queued += 1; }
     }
     // 배경/이펙트 (있으면 사용, 없으면 절차적 폴백)
     const extra: Array<[string, string]> = [
@@ -70,7 +72,7 @@ export class BootScene extends Phaser.Scene {
       ['fx-hit', 'data/fx/hit.png'],
     ];
     for (const [key, path] of extra) {
-      if (!this.textures.exists(key)) { this.load.image(key, path); queued += 1; }
+      if (!this.textures.exists(key)) { this.load.image(key, `${path}${V}`); queued += 1; }
     }
     const goNext = (): void => {
       this.game.scene.start('Lobby');
