@@ -17,7 +17,7 @@
     "mythic": 1,
     "boss": 1
   },
-  "goldPerKillFlat": 1,
+  "goldPerKillFlat": 2,
   "goldPerWaveClear": 30,
   "gradeWeights": {
     "common": 72,

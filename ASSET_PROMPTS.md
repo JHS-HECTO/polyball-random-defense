@@ -1,184 +1,376 @@
-# 폴리볼 랜덤 디펜스 — 에셋 생성 프롬프트 시트
+# 폴리볼 랜덤 디펜스 — 에셋 생성 프롬프트 (완성형, 복붙용)
 
-야구 컨셉 모바일 세로형(9:16) 랜덤 디펜스. 모든 캐릭터는 **방망이를 든 야구 선수**가
-야구공을 던져 공격. 등급이 높을수록 시각적으로 **확연히 강해 보여야 함**.
+야구 컨셉 세로형(9:20) 랜덤 디펜스. 모든 캐릭터=방망이 든 야구선수가 야구공 던져 공격.
+등급 높을수록 시각적으로 확연히 강해 보임. 아래 각 프롬프트는 **글로벌 스타일이 이미 앞에 붙은** 완성형 → 그대로 복사해 이미지 생성기(Imagen/DALL·E/SDXL)에 붙이면 됨.
 
-생성 도구: Gemini(Imagen), DALL·E, SDXL 등 무관. 아래 **글로벌 스타일 + 네거티브**를
-매 프롬프트에 붙이고, 섹션별 본문을 조합.
+## 파일 저장 위치
+
+생성한 PNG를 아래 경로에 그대로 저장 (파일명 = 코드의 sprite 키와 1:1):
+
+```
+polyball-random-defense/
+└─ public/data/
+   ├─ units/      ← 유닛 42개 (예: units/legendary_sniper.png)
+   ├─ enemies/    ← 일반몹 6 + 보스 5 (예: enemies/m_imp.png, enemies/b_kraken.png)
+   ├─ bg/         ← 배경/필드 (예: bg/field.png)
+   ├─ fx/         ← 발사체/이펙트 (예: fx/baseball.png)
+   └─ ui/         ← UI 아이콘 (예: ui/coin.png)
+```
+
+Windows 절대경로: `C:\Users\rest\polyball-random-defense\public\data\...`
+
+규격: PNG, 투명배경(알파), 정사각, 캐릭터 중앙정렬, 무그림자(엔진이 그림자 따로 그림).
 
 ---
 
-## 0. 공통 규격 (Phaser 스프라이트 요구사항)
+## 1. 유닛 42개 — `public/data/units/<파일명>`
 
-- **포맷**: PNG, **투명 배경(알파)** 필수. 배경/바닥 그림자 굽지 말 것(엔진이 그림자 따로 그림).
-- **캔버스**: 정사각 **512×512**, 캐릭터 중앙 정렬, 위아래 여백 일정(머리 위 ~10%, 발 아래 ~6%).
-- **시점**: 살짝 위에서 본 **3/4 정면 치비(chibi)**. 작은 크기(화면 ~50px)에서도 또렷하게.
-- **스타일**: 모바일 가챠 TD 풍 클린 셀셰이딩, 굵은 외곽선, 높은 채도/대비, 좌상단 광원 통일.
-- **실루엣**: 한 덩어리로 읽히는 강한 실루엣. 디테일은 큼직하게(작게 보이므로).
-- **정렬 통일**: 모든 유닛 동일 스케일·동일 발 기준선. 정면 바라보게(좌우 안 틀어짐).
 
-### 글로벌 스타일 (모든 프롬프트 앞에 붙임)
+### [일반] common
+
+**`units/common_contact.png`** — 일반 교타자 (fire)
 ```
-mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline,
-high saturation, soft top-left lighting, centered single character, full body,
-transparent background, no ground shadow, sharp readable silhouette,
-front 3/4 view, consistent scale, 512x512, baseball theme
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur, fiery red accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
 ```
 
-### 네거티브 (모든 프롬프트)
+**`units/common_slugger.png`** — 일반 강타자 (water)
 ```
-realistic photo, text, watermark, signature, multiple characters, cropped, blurry,
-extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
 ```
 
-### 속성 악센트 컬러 (유니폼/이펙트 포인트 색)
-| 속성 | HEX | 느낌 |
-|---|---|---|
-| fire 화염 | `#E2553F` | 빨강 |
-| water 물 | `#4AA3DF` | 파랑 |
-| wind 바람 | `#6ED0A0` | 청록/민트 |
-| earth 대지 | `#B08850` | 갈색/황토 |
-| light 빛 | `#F0E0A0` | 금/크림 |
-| dark 어둠 | `#8163B0` | 보라 |
+**`units/common_speedster.png`** — 일반 연타자 (wind)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur, mint green accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/common_splasher.png`** — 일반 거포 (earth)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur, earthy brown accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/common_sniper.png`** — 일반 저격수 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/common_buffer.png`** — 일반 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, worn gray coach jacket and cap, matte, no glow, humble amateur, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/common_slower.png`** — 일반 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, worn gray coach jacket and cap, matte, no glow, humble amateur, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+
+### [희귀] rare
+
+**`units/rare_contact.png`** — 희귀 교타자 (dark)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro, deep purple accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_slugger.png`** — 희귀 강타자 (fire)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro, fiery red accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_speedster.png`** — 희귀 연타자 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_splasher.png`** — 희귀 거포 (wind)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro, mint green accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_sniper.png`** — 희귀 저격수 (earth)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro, earthy brown accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_buffer.png`** — 희귀 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, clean blue coach uniform with metal whistle, faint glow, semi-pro, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/rare_slower.png`** — 희귀 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, clean blue coach uniform with metal whistle, faint glow, semi-pro, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+
+### [영웅] epic
+
+**`units/epic_contact.png`** — 영웅 교타자 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_slugger.png`** — 영웅 강타자 (dark)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite, deep purple accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_speedster.png`** — 영웅 연타자 (fire)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite, fiery red accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_splasher.png`** — 영웅 거포 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_sniper.png`** — 영웅 저격수 (wind)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite, mint green accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_buffer.png`** — 영웅 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, purple coach uniform with emblem and pads, soft glowing magic aura, elite, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/epic_slower.png`** — 영웅 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, purple coach uniform with emblem and pads, soft glowing magic aura, elite, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+
+### [전설] legendary
+
+**`units/legendary_contact.png`** — 전설 교타자 (earth)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful, earthy brown accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_slugger.png`** — 전설 강타자 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_speedster.png`** — 전설 연타자 (dark)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful, deep purple accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_splasher.png`** — 전설 거포 (fire)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful, fiery red accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_sniper.png`** — 전설 저격수 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_buffer.png`** — 전설 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, golden-orange ornate coach uniform, bright radiant aura, dramatic, powerful, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/legendary_slower.png`** — 전설 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, golden-orange ornate coach uniform, bright radiant aura, dramatic, powerful, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+
+### [에픽] mythic_low
+
+**`units/mythic_low_contact.png`** — 에픽 교타자 (wind)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super, mint green accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_slugger.png`** — 에픽 강타자 (earth)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super, earthy brown accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_speedster.png`** — 에픽 연타자 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_splasher.png`** — 에픽 거포 (dark)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super, deep purple accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_sniper.png`** — 에픽 저격수 (fire)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super, fiery red accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_buffer.png`** — 에픽 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, teal holographic techno coach uniform with energy wings, strong glowing particles, futuristic super, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_low_slower.png`** — 에픽 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, teal holographic techno coach uniform with energy wings, strong glowing particles, futuristic super, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+
+### [신화] mythic
+
+**`units/mythic_contact.png`** — 신화 교타자 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe, gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_slugger.png`** — 신화 강타자 (wind)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger, gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful, mint green accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_speedster.png`** — 신화 연타자 (earth)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick, gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful, earthy brown accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_splasher.png`** — 신화 거포 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel, gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_sniper.png`** — 신화 저격수 (dark)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe, gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful, deep purple accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_buffer.png`** — 신화 코치 (light)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor, no bat, gold and rainbow holographic divine coach uniform, halo and floating runes behind, overwhelming radiant aura, godlike, most powerful, golden cream accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`units/mythic_slower.png`** — 신화 투수코치 (water)
+```
+mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single character, full body, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, consistent scale, 512x512, baseball theme, a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling calming aura, tactical, no bat, gold and rainbow holographic divine coach uniform, halo and floating runes behind, overwhelming radiant aura, godlike, most powerful, blue accent color --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
 ---
 
-## 1. 유닛 (42개) — `public/data/units/<id>.png`
+## 2. 일반 적 6개 — `public/data/enemies/<파일명>`
 
-조합식: **[글로벌 스타일] + [역할 본문] + [등급 모디파이어] + [속성 악센트색] + [네거티브]**
+※ 특수유형(runner/armored/splitter/healer)은 엔진이 색틴트+배지로 표현 → 추가 이미지 불필요.
 
-파일명 = `units/{grade}_{role}.png` (예 `units/legendary_sniper.png`).
-
-### 1-A. 역할 본문 (7종)
-
-| 역할 id | 이름 | 본문 프롬프트 (영문) |
-|---|---|---|
-| `contact` | 교타자 | `a nimble baseball batter in ready stance holding a contact bat, light agile build, focused eyes, quick-hitter vibe` |
-| `slugger` | 강타자 | `a huge muscular baseball power-hitter gripping a massive heavy bat over the shoulder, intimidating bulk, home-run slugger` |
-| `speedster`| 연타자 | `a small fast baseball batter with two light bats, blurred speed lines, energetic rapid-hit pose, twitchy and quick` |
-| `splasher` | 거포 | `a stocky cannon-arm baseball slugger winding up a giant explosive swing, shockwave aura around the bat, area-blast feel` |
-| `sniper` | 저격수 | `a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat like a rifle, scope visor, sniper vibe` |
-| `buffer` | 코치 | `a friendly baseball head coach in a team jacket holding a clipboard and raising a fist, motivating gesture, supportive mentor (NO bat)` |
-| `slower` | 투수코치 | `a calm baseball pitching coach holding a stopwatch and a glove, gesturing slow-down, cooling/calming aura, tactical (NO bat)` |
-
-> 코치/투수코치(지원형)는 **배트 대신** 클립보드·스톱워치 소품. 다른 톤(서포터).
-
-### 1-B. 등급 모디파이어 (6단계 — 위로 갈수록 화려·강함)
-
-| 등급 id | 표기 | 모디파이어 프롬프트 |
-|---|---|---|
-| `common` | 일반 | `worn gray sandlot uniform, plain wooden bat, matte, no glow, humble amateur` |
-| `rare` | 희귀 | `clean blue team uniform with metal trim, polished aluminum bat, faint glow, semi-pro` |
-| `epic` | 영웅 | `purple hero uniform with shoulder emblem and pads, glowing energy bat, soft magic aura, elite` |
-| `legendary` | 전설 | `golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic, powerful` |
-| `mythic_low`| 에픽 | `teal holographic techno uniform with energy wings, plasma bat, strong glowing particles, futuristic super` |
-| `mythic` | 신화 | `gold and rainbow holographic divine uniform, halo and floating runes behind, mythic energy bat, overwhelming radiant aura, godlike, most powerful` |
-
-### 1-C. 속성 매핑 (units.json 기준 — 유니폼/이펙트 포인트색)
-
+**`enemies/m_imp.png`** — 임프
 ```
-common:  contact=fire  slugger=water  speedster=wind  splasher=earth  sniper=light  buffer=?  slower=?
-rare:    contact=dark   slugger=fire   speedster=water splasher=wind   sniper=?      ...
-```
-> 실제 속성은 `public/data/units.json`의 각 유닛 `element` 필드를 따름. 악센트색만 1-A/1-B에 합쳐 사용.
-
-### 조합 예시 — `units/legendary_sniper.png`
-```
-mobile game character art, cute chibi proportions, clean cel-shaded, bold thick outline,
-high saturation, soft top-left lighting, centered single character, full body,
-transparent background, no ground shadow, sharp readable silhouette, front 3/4 view,
-consistent scale, 512x512, baseball theme,
-a cool sharpshooter baseball pitcher-batter with one eye closed aiming a long precision bat
-like a rifle, scope visor, sniper vibe,
-golden-orange ornate armored uniform, blazing legendary bat, bright radiant aura, dramatic,
-powerful, light/cream gold accent color
---no realistic photo, text, watermark, multiple characters, drop shadow, frame, border
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, tiny red fire imp monster, round body, little horns, mischievous grin, ember flecks --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
 ```
 
-**42개 = 7역할 × 6등급.** 위 표를 곱해서 전부 생성.
+**`enemies/m_slime.png`** — 슬라임
+```
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, blue water slime blob, glossy translucent, jiggly round, cute simple eyes --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`enemies/m_wisp.png`** — 윕
+```
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, mint-green wind wisp spirit, wispy round body, tiny wings, airy swirl --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`enemies/m_rocky.png`** — 락키
+```
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, brown earth rock golem mini, chunky round boulder body, mossy bits, sturdy --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`enemies/m_seraph_minion.png`** — 타락천사
+```
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, pale gold fallen-angel minion, small round body, broken halo, single tattered wing --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`enemies/m_shade.png`** — 그림자
+```
+mobile game monster art, cute chibi, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, sharp readable silhouette, front 3/4 view, 512x512, simple round monster, no bat, no baseball gear, purple shadow creature, round dark smoky body, glowing eyes, wispy edges --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
 ---
 
-## 2. 일반 적 (6개) — `public/data/enemies/<id>.png`
+## 3. 보스 5개 — `public/data/enemies/<파일명>`
 
-작은 몬스터, 둥근 실루엣, 트랙을 도는 잡몹. 동일 치비/셀셰이딩 스타일.
-※ 특수유형(runner/armored/splitter/healer)은 엔진이 색틴트+배지로 표현 → **추가 이미지 불필요**.
+**`enemies/b_lava_drake.png`** — 용암 드레이크
+```
+mobile game boss monster art, imposing and dramatic, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, strong silhouette, front 3/4 view, 768x768, powerful, massive lava dragon boss, molten cracks glowing orange, smoke, fierce, fire element --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
-| 파일 | 이름 | 프롬프트 본문 |
-|---|---|---|
-| `enemies/m_imp.png` | 임프 | `tiny red fire imp monster, round body, little horns, mischievous grin, ember flecks` |
-| `enemies/m_slime.png`| 슬라임 | `blue water slime blob, glossy translucent, jiggly round, cute simple eyes` |
-| `enemies/m_wisp.png` | 윕 | `mint-green wind wisp spirit, wispy round body, tiny wings, airy swirl` |
-| `enemies/m_rocky.png`| 락키 | `brown earth rock golem mini, chunky round boulder body, mossy bits, sturdy` |
-| `enemies/m_seraph_minion.png`| 타락천사 | `pale gold fallen-angel minion, small round body, broken halo, single tattered wing` |
-| `enemies/m_shade.png`| 그림자 | `purple shadow creature, round dark smoky body, glowing eyes, wispy edges` |
+**`enemies/b_kraken.png`** — 크라켄
+```
+mobile game boss monster art, imposing and dramatic, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, strong silhouette, front 3/4 view, 768x768, powerful, giant blue kraken boss, many thick tentacles, glowing eyes, dripping water, sea element --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
-규격: 글로벌 스타일 + 위 본문 + `simple round monster, no bat, no baseball gear`. 512×512 투명.
+**`enemies/b_storm_giant.png`** — 폭풍 거인
+```
+mobile game boss monster art, imposing and dramatic, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, strong silhouette, front 3/4 view, 768x768, powerful, towering green storm giant boss, crackling lightning, swirling wind, stormy aura --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
----
+**`enemies/b_titan_lord.png`** — 타이탄 군주
+```
+mobile game boss monster art, imposing and dramatic, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, strong silhouette, front 3/4 view, 768x768, powerful, colossal brown stone titan lord boss, rocky armor, glowing core, earth element, huge --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
-## 3. 보스 (5개) — `public/data/enemies/<id>.png`
-
-크고 위협적, 화면을 압도. 정면 3/4, 강한 실루엣. 512×512(보스는 700~800 권장도 가능).
-
-| 파일 | 이름 | 프롬프트 본문 |
-|---|---|---|
-| `enemies/b_lava_drake.png` | 용암 드레이크 | `massive lava dragon boss, molten cracks glowing orange, smoke, fierce, fire element` |
-| `enemies/b_kraken.png` | 크라켄 | `giant blue kraken boss, many thick tentacles, glowing eyes, dripping water, sea element` |
-| `enemies/b_storm_giant.png`| 폭풍 거인 | `towering green storm giant boss, crackling lightning, swirling wind, stormy aura` |
-| `enemies/b_titan_lord.png` | 타이탄 군주 | `colossal brown stone titan lord boss, rocky armor, glowing core, earth element, huge` |
-| `enemies/b_void_lord.png` | 공허 군주 | `dark purple void lord boss, cosmic robe, floating dark crystals, glowing void eyes, ominous` |
-
-규격: 글로벌 스타일 + 본문 + `imposing boss monster, dramatic, powerful`. 투명 배경.
+**`enemies/b_void_lord.png`** — 공허 군주
+```
+mobile game boss monster art, imposing and dramatic, clean cel-shaded, bold thick outline, high saturation, soft top-left lighting, centered single creature, transparent background, no ground shadow, strong silhouette, front 3/4 view, 768x768, powerful, dark purple void lord boss, cosmic robe, floating dark crystals, glowing void eyes, ominous --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
 ---
 
-## 4. 배경 / 필드 — `public/data/bg/`
+## 4. 배경/필드 — `public/data/bg/<파일명>`
 
-세로형 야구장 탑다운. 게임은 **사각 순환 트랙**(적이 시계방향으로 돎) + 안쪽 배치영역.
+※ 배경은 **불투명**(타일용). 투명배경 아님.
 
-| 파일 | 용도 | 프롬프트 |
-|---|---|---|
-| `bg/field.png` | 메인 필드(타일 가능) | `top-down baseball field turf, clean green grass with subtle mowing stripes, faint diamond infield dirt arc in corner, seamless tileable texture, soft, no players, no lines clutter` |
-| `bg/track.png` | 순환 트랙 길(선택) | `top-down running track dirt path, warm tan baseball infield dirt, subtle texture, seamless, for a square loop path` |
-| `bg/stadium_vignette.png`| 가장자리 분위기(선택) | `top-down stadium edge vignette, dark stands and dugout silhouettes around the border, transparent center, mobile game ambiance` |
+**`bg/field.png`** — 메인 필드(잔디 타일)
+```
+top-down baseball field turf, clean green grass with subtle mowing stripes, faint diamond infield dirt arc in corner, seamless tileable texture, soft, mobile game, 512x512, opaque --no characters, players, text, watermark, frame, border, harsh lines
+```
 
-> 현재 엔진은 절차적 잔디 타일(`tile-grass`) 사용 중 → `bg/field.png`로 교체하면 질 상승.
-
----
-
-## 5. 발사체 / 이펙트 — `public/data/fx/`
-
-| 파일 | 용도 | 프롬프트 |
-|---|---|---|
-| `fx/baseball.png` | 야구공 탄환 | `a single white baseball with red stitching, clean, slight motion glow, centered, 128x128, transparent background` |
-| `fx/hit.png` | 타격 임팩트(선택) | `cartoon impact star burst, white-yellow, comic pow effect, transparent, 128x128` |
-| `fx/swing_arc.png`| 배트 스윙 잔상(선택) | `curved motion blur swing arc, white translucent crescent, transparent, 256x256` |
-
-> hit/swing/사망 연출은 현재 트윈으로 절차 처리 중 → 이미지로 교체 시 더 좋음(선택).
+**`bg/track.png`** — 순환 트랙 길(선택)
+```
+top-down running track dirt path, warm tan baseball infield dirt, subtle texture, seamless tileable, mobile game, 512x512, opaque --no characters, players, text, watermark, frame, border, harsh lines
+```
 
 ---
 
-## 6. UI 아이콘 — `public/data/ui/`
+## 5. 발사체/이펙트 — `public/data/fx/<파일명>`
 
-| 파일 | 용도 | 프롬프트 |
-|---|---|---|
-| `ui/coin.png` | 골드(소환비용) | `a shiny gold coin with a small baseball emboss, mobile game currency icon, clean, 128x128, transparent` |
-| `ui/ticket.png`| 응모권(오늘의 4번타자) | `a golden raffle ticket icon with a star and baseball motif, glossy, 128x128, transparent` |
-| `ui/summon.png`| 소환 버튼 글로시(선택) | `glossy orange capsule button background, gacha summon, soft gradient, rounded, 512x160, transparent` |
+**`fx/baseball.png`** — 야구공 탄환
+```
+a single white baseball with red stitching, clean, slight motion glow, centered, transparent background, 128x128 --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
-> 현재 골드/티켓은 이모지(⚾🎟) 사용 중 → 아이콘 교체 시 통일감 ↑.
+**`fx/hit.png`** — 타격 임팩트(선택)
+```
+cartoon impact star burst, white and yellow, comic pow effect, transparent background, 128x128 --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+**`fx/swing_arc.png`** — 배트 스윙 잔상(선택)
+```
+curved motion blur swing arc, white translucent crescent, transparent background, 256x256 --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
 ---
 
-## 생성 우선순위 (시간 아끼려면)
+## 6. UI 아이콘 — `public/data/ui/<파일명>`
 
-1. **유닛 42개** (게임 핵심·등급 차별화). 시간 없으면 등급별 1역할씩 먼저.
-2. **보스 5개** (임팩트 큼).
-3. **일반몹 6개**.
-4. **야구공 `fx/baseball.png`** (가장 자주 보임).
-5. **`bg/field.png`** 잔디.
-6. UI 아이콘.
+**`ui/coin.png`** — 골드(소환비용)
+```
+a shiny gold coin with a small baseball emboss, mobile game currency icon, clean, glossy, centered, transparent background, 128x128 --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
 
-생성 후 `public/data/` 아래 경로대로 넣으면, Boot 로더에 `this.load.image(id, sprite)` 추가 +
-UnitEntity/EnemyEntity에서 플레이스홀더 대신 `scene.add.image(0,0,id)` 사용하도록 교체 작업 진행.
+**`ui/ticket.png`** — 응모권(오늘의 4번타자)
+```
+a golden raffle ticket icon with a star and baseball motif, glossy, centered, transparent background, 128x128 --no realistic photo, text, watermark, signature, multiple characters, cropped, blurry, extra limbs, deformed hands, busy background, drop shadow, frame, border, UI elements
+```
+
+---
+
+## 우선순위
+
+1. 유닛 42 (핵심) 2. 보스 5 3. 일반몹 6 4. fx/baseball.png 5. bg/field.png 6. UI
+
+생성 후 경로에 넣으면, Boot 로더에 `this.load.image(id, sprite)` 추가 + UnitEntity/EnemyEntity 플레이스홀더를 `scene.add.image`로 교체하는 작업 진행.

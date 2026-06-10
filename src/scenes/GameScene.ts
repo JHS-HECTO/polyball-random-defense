@@ -588,7 +588,7 @@ export class GameScene extends Phaser.Scene {
   private killEnemy(e: EnemyEntity): void {
     const idx = this.enemies.indexOf(e);
     if (idx >= 0) this.enemies.splice(idx, 1);
-    // 몹 하나 처치 = 1원 (config.goldPerKillFlat)
+    // 몹 하나 처치 = 2원 (config.goldPerKillFlat)
     this.state.earn(registry.config.goldPerKillFlat);
     this.state.addScore(e.isBoss ? 500 : 25);
     this.spawnCoin(e.x, e.y);
