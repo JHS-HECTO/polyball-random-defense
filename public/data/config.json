@@ -129,5 +129,86 @@
     "legendary": 350,
     "mythic_low": 900,
     "mythic": 2500
+  },
+  "roles": {
+    "contact": {
+      "atkMul": 1.0,
+      "spdMul": 1.0,
+      "rangeMul": 1.0,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 600,
+      "projSize": 5,
+      "label": "교타",
+      "badge": "⭐"
+    },
+    "slugger": {
+      "atkMul": 2.2,
+      "spdMul": 0.5,
+      "rangeMul": 1.0,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 480,
+      "projSize": 9,
+      "label": "강타",
+      "badge": "🏏"
+    },
+    "speedster": {
+      "atkMul": 0.45,
+      "spdMul": 2.5,
+      "rangeMul": 0.8,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 820,
+      "projSize": 4,
+      "label": "연타",
+      "badge": "⚡"
+    },
+    "splasher": {
+      "atkMul": 1.1,
+      "spdMul": 0.6,
+      "rangeMul": 1.0,
+      "splash": 70,
+      "splashFrac": 0.6,
+      "projSpd": 560,
+      "projSize": 7,
+      "label": "광역",
+      "badge": "💥"
+    },
+    "sniper": {
+      "atkMul": 1.6,
+      "spdMul": 0.4,
+      "rangeMul": 2.0,
+      "splash": 0,
+      "splashFrac": 0,
+      "projSpd": 1000,
+      "projSize": 7,
+      "label": "저격",
+      "badge": "🎯"
+    }
+  },
+  "gradeMultiplier": {
+    "common": 1.0,
+    "rare": 1.4,
+    "epic": 2.0,
+    "legendary": 3.0,
+    "mythic_low": 4.5,
+    "mythic": 7.0
+  },
+  "gradeSpeedBonus": {
+    "common": 1.0,
+    "rare": 0.97,
+    "epic": 0.93,
+    "legendary": 0.88,
+    "mythic_low": 0.82,
+    "mythic": 0.75
+  },
+  "gradeRangeBonus": {
+    "common": 1.0,
+    "rare": 1.05,
+    "epic": 1.1,
+    "legendary": 1.16,
+    "mythic_low": 1.22,
+    "mythic": 1.3
   }
 }

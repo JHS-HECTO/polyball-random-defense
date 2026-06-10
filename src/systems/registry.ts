@@ -5,18 +5,44 @@ import Phaser from 'phaser';
 
 export type Grade = 'common' | 'rare' | 'epic' | 'legendary' | 'mythic_low' | 'mythic';
 export type Element = 'fire' | 'water' | 'wind' | 'earth' | 'light' | 'dark';
+export type Role = 'contact' | 'slugger' | 'speedster' | 'splasher' | 'sniper';
+
+export type RoleCfg = {
+  atkMul: number;
+  spdMul: number;
+  rangeMul: number;
+  splash: number;
+  splashFrac: number;
+  projSpd: number;
+  projSize: number;
+  label: string;
+  badge: string;
+};
 
 export type Unit = {
   id: string;
   name: string;
   grade: Grade;
+  role: Role;
   element: Element;
+  baseAtk: number;
+  baseRange: number;
+  baseAtkSpeed: number;
+  splashRadius: number;
+  projectileSpeed: number;
+  projectileType: string;
+  sprite: string;
+};
+
+// 등급×역할 최종 스탯
+export type ResolvedStats = {
   atk: number;
   range: number;
   atkSpeed: number;
-  projectileType: string;
-  sprite: string;
-  skill?: string;
+  splashRadius: number;
+  splashFrac: number;
+  projSpeed: number;
+  projSize: number;
 };
 
 export type Enemy = {
@@ -51,10 +77,10 @@ export type GameConfig = {
   goldPerKillFlat: number;
   goldPerWaveClear: number;
   gradeWeights: Record<Grade, number>;
-  dmgByGrade: Record<Grade, number>;
-  attackSpeedByGrade: Record<Grade, number>;
-  rangeByGrade: Record<Grade, number>;
-  projectileSpeedByGrade: Record<Grade, number>;
+  roles: Record<Role, RoleCfg>;
+  gradeMultiplier: Record<Grade, number>;
+  gradeSpeedBonus: Record<Grade, number>;
+  gradeRangeBonus: Record<Grade, number>;
   mobHpByWave: { base: number; perWaveMult: number; bossMult: number };
   mobSpeed: { base: number; perWaveAdd: number; berserkMult: number; maxSpeed: number };
   mobsPerWave: number;
@@ -195,12 +221,20 @@ class Registry {
     return ['common', 'rare', 'epic', 'legendary', 'mythic_low', 'mythic'];
   }
 
-  // 등급별 베이스 스탯 (config 기반)
-  baseStatsForGrade(grade: Grade): { atk: number; atkSpeed: number; range: number } {
+  // 등급 × 역할 최종 스탯
+  resolveStats(u: Unit): ResolvedStats {
+    const role = this.config.roles[u.role];
+    const gMul = this.config.gradeMultiplier[u.grade];
+    const spdBonus = this.config.gradeSpeedBonus[u.grade];
+    const rngBonus = this.config.gradeRangeBonus[u.grade];
     return {
-      atk: this.config.dmgByGrade[grade],
-      atkSpeed: this.config.attackSpeedByGrade[grade],
-      range: this.config.rangeByGrade[grade],
+      atk: Math.round(u.baseAtk * gMul * role.atkMul),
+      range: Math.round(u.baseRange * rngBonus * role.rangeMul),
+      atkSpeed: u.baseAtkSpeed * spdBonus * role.spdMul,
+      splashRadius: role.splash,
+      splashFrac: role.splashFrac,
+      projSpeed: role.projSpd,
+      projSize: role.projSize,
     };
   }
 

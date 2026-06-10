@@ -28,11 +28,14 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   readonly uid: number;
   def: Unit;
   summonPrice: number;
-  // config 등급 스탯
+  // 등급×역할 최종 스탯
   atk: number;
   range: number;
   atkSpeed: number;
   projSpeed: number;
+  projSize: number;
+  splashRadius: number;
+  splashFrac: number;
   cooldownLeft: number = 0;
   placed: boolean = false;
 
@@ -43,6 +46,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   private glowG: Phaser.GameObjects.Graphics;
   private idleSeed: number;
   private swingMs = 0;
+  private swingDuration = 200;
 
   constructor(scene: Phaser.Scene, x: number, y: number, def: Unit, summonPrice: number) {
     super(scene, x, y);
@@ -51,11 +55,16 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     this.summonPrice = summonPrice;
     this.idleSeed = Math.random() * Math.PI * 2;
 
-    const st = registry.baseStatsForGrade(def.grade);
+    const st = registry.resolveStats(def);
     this.atk = st.atk;
     this.range = st.range;
     this.atkSpeed = st.atkSpeed;
-    this.projSpeed = registry.config.projectileSpeedByGrade[def.grade];
+    this.projSpeed = st.projSpeed;
+    this.projSize = st.projSize;
+    this.splashRadius = st.splashRadius;
+    this.splashFrac = st.splashFrac;
+    // 스윙 길이 = 공속 연동 (강타=느린 큰 스윙, 연타=짧고 빠름)
+    this.swingDuration = Phaser.Math.Clamp(this.atkSpeed * 1000 * 0.55, 90, 340);
 
     this.rangeG = scene.add.graphics();
     this.add(this.rangeG);
@@ -80,6 +89,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
 
     this.drawCharacter();
 
+    // 등급 라벨 (하단)
     const label = scene.add.text(0, 24, GRADE_LABEL[def.grade], {
       fontFamily: 'Pretendard, system-ui, sans-serif',
       fontSize: '10px',
@@ -90,6 +100,15 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     });
     label.setOrigin(0.5);
     this.add(label);
+
+    // role 뱃지 (우상단)
+    const roleCfg = registry.config.roles[def.role];
+    const badge = scene.add.text(16, -22, roleCfg.badge, {
+      fontFamily: 'system-ui, sans-serif',
+      fontSize: '14px',
+    });
+    badge.setOrigin(0.5);
+    this.add(badge);
 
     // 큰 hit 영역 (손가락 터치 안정)
     this.setSize(76, 84);
@@ -160,10 +179,11 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     g.clear();
     const c = GRADE_COLOR[this.def.grade];
     // 스윙 진행도 (0 idle, 0~1 스윙)
-    const t = this.swingMs > 0 ? 1 - this.swingMs / registry.config.anim.batSwingMs : 0;
-    // idle: 어깨에 걸친 사선 / swing: 앞으로 휘두름
+    const t = this.swingMs > 0 ? 1 - this.swingMs / this.swingDuration : 0;
+    // idle: 어깨에 걸친 사선 / swing: 앞으로 휘두름. 강타는 큰 호, 연타는 작은 호.
     const baseAng = -0.7;
-    const ang = this.swingMs > 0 ? baseAng + Math.sin(t * Math.PI) * 1.8 : baseAng;
+    const arcMag = this.def.role === 'slugger' ? 2.3 : this.def.role === 'speedster' ? 1.2 : 1.8;
+    const ang = this.swingMs > 0 ? baseAng + Math.sin(t * Math.PI) * arcMag : baseAng;
     const sx = 11;
     const sy = -4;
     const len = 22;
@@ -217,7 +237,7 @@ export class UnitEntity extends Phaser.GameObjects.Container {
   }
 
   playAttack(targetX: number, targetY: number): void {
-    this.swingMs = registry.config.anim.batSwingMs;
+    this.swingMs = this.swingDuration;
     const a = registry.config.anim;
     const dx = targetX - this.x;
     const dy = targetY - this.y;

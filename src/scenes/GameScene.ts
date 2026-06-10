@@ -360,9 +360,10 @@ export class GameScene extends Phaser.Scene {
     this.deselect();
     this.selectedUnit = u;
     u.setSelected(true);
-    // HUD DOM 판매바 표시 (확실한 터치)
+    // HUD DOM 판매바 표시 (유닛명·역할·공격력 + 판매)
+    const roleCfg = registry.config.roles[u.def.role];
     this.hud.showSellBar(
-      `${u.def.name} · ${registry.config.gradeLabels[u.def.grade]}`,
+      `${roleCfg.badge} ${u.def.name} · ⚔${u.atk}`,
       u.sellRefund(),
       () => {
         if (this.selectedUnit) this.sellUnit(this.selectedUnit);
@@ -414,6 +415,8 @@ export class GameScene extends Phaser.Scene {
     const mult = registry.elementMultiplier(u.def.element, target.def.element);
     const dmg = Math.round(u.atk * mult);
     const eid = target.eid;
+    const splashR = u.splashRadius;
+    const splashFrac = u.splashFrac;
     this.projectiles.fire({
       x: u.x,
       y: u.y,
@@ -425,7 +428,50 @@ export class GameScene extends Phaser.Scene {
       damage: dmg,
       color: GRADE_PROJ_COLOR[u.def.grade] ?? 0xffffff,
       speed: u.projSpeed,
-      onHit: (d) => this.damageEnemy(eid, d, mult > 1),
+      size: u.projSize,
+      onHit: (d, hx, hy) => {
+        this.damageEnemy(eid, d, mult > 1);
+        // 광역(splasher): 적중 지점 반경 내 추가 피해 + 폭발 이펙트
+        if (splashR > 0) {
+          this.splashDamage(hx, hy, splashR, Math.round(u.atk * splashFrac * mult), eid);
+          this.splashFx(hx, hy, splashR, GRADE_PROJ_COLOR[u.def.grade] ?? 0xffffff);
+        }
+      },
+    });
+  }
+
+  private splashDamage(cx: number, cy: number, radius: number, dmg: number, exceptEid: number): void {
+    const r2 = radius * radius;
+    for (const e of [...this.enemies]) {
+      if (!e.alive || e.eid === exceptEid) continue;
+      const dx = e.x - cx;
+      const dy = e.y - cy;
+      if (dx * dx + dy * dy <= r2) {
+        const dead = e.takeDamage(dmg);
+        this.spawnFloatText(e.x, e.y - 14, String(dmg), '#ff8a3d');
+        if (dead) this.killEnemy(e);
+      }
+    }
+  }
+
+  private splashFx(cx: number, cy: number, radius: number, color: number): void {
+    const g = this.add.graphics();
+    g.setDepth(22);
+    const s = { r: 8, a: 0.6 };
+    this.tweens.add({
+      targets: s,
+      r: radius,
+      a: 0,
+      duration: 280,
+      ease: 'Cubic.easeOut',
+      onUpdate: () => {
+        g.clear();
+        g.fillStyle(color, s.a * 0.5);
+        g.fillCircle(cx, cy, s.r);
+        g.lineStyle(3, color, s.a);
+        g.strokeCircle(cx, cy, s.r);
+      },
+      onComplete: () => g.destroy(),
     });
   }
 
