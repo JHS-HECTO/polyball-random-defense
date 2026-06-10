@@ -58,6 +58,33 @@ export class Hud {
   private sellBarEl: HTMLDivElement | null = null;
   private ticketPopupEl: HTMLDivElement | null = null;
 
+  // 유닛 정보 패널 (이름·등급·역할설명·스탯 + 판매)
+  showUnitInfo(
+    info: { name: string; gradeLabel: string; gradeColor: string; statLine: string; desc: string; refund: number },
+    onSell: () => void,
+  ): void {
+    this.hideSellBar();
+    const bar = document.createElement('div');
+    bar.className = 'hud-sellbar hud-unitinfo';
+    bar.innerHTML = `
+      <div class="hud-ui-main">
+        <div class="hud-ui-name">
+          <span class="hud-ui-grade" style="background:${info.gradeColor}">${info.gradeLabel}</span>
+          ${info.name}
+        </div>
+        <div class="hud-ui-stat">${info.statLine}</div>
+        <div class="hud-ui-desc">${info.desc}</div>
+      </div>
+      <button class="hud-sellbar-btn" type="button">판매<br><b>+${info.refund}</b></button>
+    `;
+    bar.querySelector('.hud-sellbar-btn')?.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      onSell();
+    });
+    this.root.appendChild(bar);
+    this.sellBarEl = bar;
+  }
+
   // 보스 처치 응모권 팝업. 딤(배경) 클릭은 무시, '받기' 버튼만 닫힘.
   showTicketPopup(wave: number, onClaim: () => void): void {
     if (this.ticketPopupEl) return;
@@ -92,20 +119,6 @@ export class Hud {
       this.ticketPopupEl.remove();
       this.ticketPopupEl = null;
     }
-  }
-
-  showSellBar(title: string, refund: number, onSell: () => void): void {
-    this.hideSellBar();
-    const bar = document.createElement('div');
-    bar.className = 'hud-sellbar';
-    bar.innerHTML = `
-      <span class="hud-sellbar-title">${title}</span>
-      <button class="hud-sellbar-btn" type="button">판매 <b>+${refund}</b> ⛁</button>
-    `;
-    this.root.appendChild(bar);
-    const btn = bar.querySelector('.hud-sellbar-btn') as HTMLButtonElement;
-    btn.addEventListener('click', () => onSell());
-    this.sellBarEl = bar;
   }
 
   hideSellBar(): void {
@@ -453,6 +466,20 @@ export class Hud {
         cursor: pointer;
       }
       .hud-sellbar-btn:active { transform: scale(0.96); }
+
+      .hud-unitinfo { align-items: stretch; padding: 10px 12px; }
+      .hud-ui-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+      .hud-ui-name {
+        font-size: 15px; font-weight: 800; color: var(--ink-1);
+        display: flex; align-items: center; gap: 6px;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .hud-ui-grade {
+        font-size: 11px; font-weight: 800; color: #0e1116;
+        padding: 1px 6px; border-radius: 6px; flex: 0 0 auto;
+      }
+      .hud-ui-stat { font-size: 12px; font-weight: 700; color: var(--ink-2); }
+      .hud-ui-desc { font-size: 11px; color: var(--ink-3); line-height: 1.4; }
 
       .hud-bottom {
         position: absolute;

@@ -2,7 +2,7 @@
   "units": [
     {
       "id": "common_contact",
-      "name": "일반 교타자",
+      "name": "교타자",
       "grade": "common",
       "role": "contact",
       "element": "fire",
@@ -16,7 +16,7 @@
     },
     {
       "id": "common_slugger",
-      "name": "일반 강타자",
+      "name": "강타자",
       "grade": "common",
       "role": "slugger",
       "element": "water",
@@ -30,7 +30,7 @@
     },
     {
       "id": "common_speedster",
-      "name": "일반 연타자",
+      "name": "연타자",
       "grade": "common",
       "role": "speedster",
       "element": "wind",
@@ -44,7 +44,7 @@
     },
     {
       "id": "common_splasher",
-      "name": "일반 거포",
+      "name": "거포",
       "grade": "common",
       "role": "splasher",
       "element": "earth",
@@ -58,7 +58,7 @@
     },
     {
       "id": "common_sniper",
-      "name": "일반 저격수",
+      "name": "저격수",
       "grade": "common",
       "role": "sniper",
       "element": "light",
@@ -72,7 +72,7 @@
     },
     {
       "id": "rare_contact",
-      "name": "희귀 교타자",
+      "name": "교타자",
       "grade": "rare",
       "role": "contact",
       "element": "dark",
@@ -86,7 +86,7 @@
     },
     {
       "id": "rare_slugger",
-      "name": "희귀 강타자",
+      "name": "강타자",
       "grade": "rare",
       "role": "slugger",
       "element": "fire",
@@ -100,7 +100,7 @@
     },
     {
       "id": "rare_speedster",
-      "name": "희귀 연타자",
+      "name": "연타자",
       "grade": "rare",
       "role": "speedster",
       "element": "water",
@@ -114,7 +114,7 @@
     },
     {
       "id": "rare_splasher",
-      "name": "희귀 거포",
+      "name": "거포",
       "grade": "rare",
       "role": "splasher",
       "element": "wind",
@@ -128,7 +128,7 @@
     },
     {
       "id": "rare_sniper",
-      "name": "희귀 저격수",
+      "name": "저격수",
       "grade": "rare",
       "role": "sniper",
       "element": "earth",
@@ -142,7 +142,7 @@
     },
     {
       "id": "epic_contact",
-      "name": "영웅 교타자",
+      "name": "교타자",
       "grade": "epic",
       "role": "contact",
       "element": "light",
@@ -156,7 +156,7 @@
     },
     {
       "id": "epic_slugger",
-      "name": "영웅 강타자",
+      "name": "강타자",
       "grade": "epic",
       "role": "slugger",
       "element": "dark",
@@ -170,7 +170,7 @@
     },
     {
       "id": "epic_speedster",
-      "name": "영웅 연타자",
+      "name": "연타자",
       "grade": "epic",
       "role": "speedster",
       "element": "fire",
@@ -184,7 +184,7 @@
     },
     {
       "id": "epic_splasher",
-      "name": "영웅 거포",
+      "name": "거포",
       "grade": "epic",
       "role": "splasher",
       "element": "water",
@@ -198,7 +198,7 @@
     },
     {
       "id": "epic_sniper",
-      "name": "영웅 저격수",
+      "name": "저격수",
       "grade": "epic",
       "role": "sniper",
       "element": "wind",
@@ -212,7 +212,7 @@
     },
     {
       "id": "legendary_contact",
-      "name": "전설 교타자",
+      "name": "교타자",
       "grade": "legendary",
       "role": "contact",
       "element": "earth",
@@ -226,7 +226,7 @@
     },
     {
       "id": "legendary_slugger",
-      "name": "전설 강타자",
+      "name": "강타자",
       "grade": "legendary",
       "role": "slugger",
       "element": "light",
@@ -240,7 +240,7 @@
     },
     {
       "id": "legendary_speedster",
-      "name": "전설 연타자",
+      "name": "연타자",
       "grade": "legendary",
       "role": "speedster",
       "element": "dark",
@@ -254,7 +254,7 @@
     },
     {
       "id": "legendary_splasher",
-      "name": "전설 거포",
+      "name": "거포",
       "grade": "legendary",
       "role": "splasher",
       "element": "fire",
@@ -268,7 +268,7 @@
     },
     {
       "id": "legendary_sniper",
-      "name": "전설 저격수",
+      "name": "저격수",
       "grade": "legendary",
       "role": "sniper",
       "element": "water",
@@ -282,7 +282,7 @@
     },
     {
       "id": "mythic_low_contact",
-      "name": "에픽 교타자",
+      "name": "교타자",
       "grade": "mythic_low",
       "role": "contact",
       "element": "wind",
@@ -296,7 +296,7 @@
     },
     {
       "id": "mythic_low_slugger",
-      "name": "에픽 강타자",
+      "name": "강타자",
       "grade": "mythic_low",
       "role": "slugger",
       "element": "earth",
@@ -310,7 +310,7 @@
     },
     {
       "id": "mythic_low_speedster",
-      "name": "에픽 연타자",
+      "name": "연타자",
       "grade": "mythic_low",
       "role": "speedster",
       "element": "light",
@@ -324,7 +324,7 @@
     },
     {
       "id": "mythic_low_splasher",
-      "name": "에픽 거포",
+      "name": "거포",
       "grade": "mythic_low",
       "role": "splasher",
       "element": "dark",
@@ -338,7 +338,7 @@
     },
     {
       "id": "mythic_low_sniper",
-      "name": "에픽 저격수",
+      "name": "저격수",
       "grade": "mythic_low",
       "role": "sniper",
       "element": "fire",
@@ -352,7 +352,7 @@
     },
     {
       "id": "mythic_contact",
-      "name": "신화 교타자",
+      "name": "교타자",
       "grade": "mythic",
       "role": "contact",
       "element": "water",
@@ -366,7 +366,7 @@
     },
     {
       "id": "mythic_slugger",
-      "name": "신화 강타자",
+      "name": "강타자",
       "grade": "mythic",
       "role": "slugger",
       "element": "wind",
@@ -380,7 +380,7 @@
     },
     {
       "id": "mythic_speedster",
-      "name": "신화 연타자",
+      "name": "연타자",
       "grade": "mythic",
       "role": "speedster",
       "element": "earth",
@@ -394,7 +394,7 @@
     },
     {
       "id": "mythic_splasher",
-      "name": "신화 거포",
+      "name": "거포",
       "grade": "mythic",
       "role": "splasher",
       "element": "light",
@@ -408,7 +408,7 @@
     },
     {
       "id": "mythic_sniper",
-      "name": "신화 저격수",
+      "name": "저격수",
       "grade": "mythic",
       "role": "sniper",
       "element": "dark",
@@ -422,7 +422,7 @@
     },
     {
       "id": "common_buffer",
-      "name": "일반 코치",
+      "name": "코치",
       "grade": "common",
       "role": "buffer",
       "element": "light",
@@ -436,7 +436,7 @@
     },
     {
       "id": "common_slower",
-      "name": "일반 투수코치",
+      "name": "투수코치",
       "grade": "common",
       "role": "slower",
       "element": "water",
@@ -450,7 +450,7 @@
     },
     {
       "id": "rare_buffer",
-      "name": "희귀 코치",
+      "name": "코치",
       "grade": "rare",
       "role": "buffer",
       "element": "light",
@@ -464,7 +464,7 @@
     },
     {
       "id": "rare_slower",
-      "name": "희귀 투수코치",
+      "name": "투수코치",
       "grade": "rare",
       "role": "slower",
       "element": "water",
@@ -478,7 +478,7 @@
     },
     {
       "id": "epic_buffer",
-      "name": "영웅 코치",
+      "name": "코치",
       "grade": "epic",
       "role": "buffer",
       "element": "light",
@@ -492,7 +492,7 @@
     },
     {
       "id": "epic_slower",
-      "name": "영웅 투수코치",
+      "name": "투수코치",
       "grade": "epic",
       "role": "slower",
       "element": "water",
@@ -506,7 +506,7 @@
     },
     {
       "id": "legendary_buffer",
-      "name": "전설 코치",
+      "name": "코치",
       "grade": "legendary",
       "role": "buffer",
       "element": "light",
@@ -520,7 +520,7 @@
     },
     {
       "id": "legendary_slower",
-      "name": "전설 투수코치",
+      "name": "투수코치",
       "grade": "legendary",
       "role": "slower",
       "element": "water",
@@ -534,7 +534,7 @@
     },
     {
       "id": "mythic_low_buffer",
-      "name": "에픽 코치",
+      "name": "코치",
       "grade": "mythic_low",
       "role": "buffer",
       "element": "light",
@@ -548,7 +548,7 @@
     },
     {
       "id": "mythic_low_slower",
-      "name": "에픽 투수코치",
+      "name": "투수코치",
       "grade": "mythic_low",
       "role": "slower",
       "element": "water",
@@ -562,7 +562,7 @@
     },
     {
       "id": "mythic_buffer",
-      "name": "신화 코치",
+      "name": "코치",
       "grade": "mythic",
       "role": "buffer",
       "element": "light",
@@ -576,7 +576,7 @@
     },
     {
       "id": "mythic_slower",
-      "name": "신화 투수코치",
+      "name": "투수코치",
       "grade": "mythic",
       "role": "slower",
       "element": "water",

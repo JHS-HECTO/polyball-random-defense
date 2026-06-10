@@ -369,11 +369,22 @@ export class GameScene extends Phaser.Scene {
     this.deselect();
     this.selectedUnit = u;
     u.setSelected(true);
-    // HUD DOM 판매바 표시 (유닛명·역할·공격력 + 판매)
+    // HUD 정보 패널 (유닛명·등급·역할·설명·스탯 + 판매)
     const roleCfg = registry.config.roles[u.def.role];
-    this.hud.showSellBar(
-      `${roleCfg.badge} ${u.def.name} · ⚔${u.atk}`,
-      u.sellRefund(),
+    const gColor = registry.config.gradeColors[u.def.grade];
+    const gLabel = registry.config.gradeLabels[u.def.grade];
+    const statLine = u.isSupport
+      ? `${roleCfg.badge} ${roleCfg.label} · 범위 ${Math.round(u.supportRadius())}`
+      : `${roleCfg.badge} ${roleCfg.label} · ⚔${u.atk} · 사거리 ${u.range} · 공속 ${(1 / u.atkSpeed).toFixed(1)}/s`;
+    this.hud.showUnitInfo(
+      {
+        name: u.def.name,
+        gradeLabel: gLabel,
+        gradeColor: gColor,
+        statLine,
+        desc: roleCfg.desc,
+        refund: u.sellRefund(),
+      },
       () => {
         if (this.selectedUnit) this.sellUnit(this.selectedUnit);
       },

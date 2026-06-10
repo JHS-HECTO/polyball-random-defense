@@ -17,6 +17,7 @@ export type RoleCfg = {
   projSize: number;
   label: string;
   badge: string;
+  desc: string;
   support?: 'buff' | 'slow';
 };
 
