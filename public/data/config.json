@@ -144,8 +144,8 @@
       "desc": "밸런스형. 표준 공격력·사거리·공속."
     },
     "slugger": {
-      "atkMul": 2.0,
-      "spdMul": 0.5,
+      "atkMul": 2.2,
+      "spdMul": 2.2,
       "rangeMul": 0.9,
       "splash": 0,
       "splashFrac": 0,
@@ -157,7 +157,7 @@
     },
     "speedster": {
       "atkMul": 0.4,
-      "spdMul": 2.5,
+      "spdMul": 0.4,
       "rangeMul": 0.85,
       "splash": 0,
       "splashFrac": 0,
@@ -169,7 +169,7 @@
     },
     "splasher": {
       "atkMul": 1.3,
-      "spdMul": 0.7,
+      "spdMul": 1.4,
       "rangeMul": 0.95,
       "splash": 70,
       "splashFrac": 0.55,
@@ -181,7 +181,7 @@
     },
     "sniper": {
       "atkMul": 2.0,
-      "spdMul": 0.45,
+      "spdMul": 2.2,
       "rangeMul": 1.7,
       "splash": 0,
       "splashFrac": 0,
