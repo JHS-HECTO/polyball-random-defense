@@ -133,15 +133,6 @@ export class UnitEntity extends Phaser.GameObjects.Container {
     label.setOrigin(0.5);
     this.add(label);
 
-    // role 뱃지 (우상단)
-    const roleCfg = registry.config.roles[def.role];
-    const badge = scene.add.text(16, -22, roleCfg.badge, {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '14px',
-    });
-    badge.setOrigin(0.5);
-    this.add(badge);
-
     // 레벨 라벨 (좌상단, Lv2부터 표시)
     this.levelLabel = scene.add.text(-16, -22, '', {
       fontFamily: 'Pretendard, system-ui, sans-serif',
